@@ -41,8 +41,16 @@ def get_long_minmax(lat,ns):
     latfac = np.cos(lat*np.pi/180.)
     long_extent = ns*sec_size/latfac
     min_long = center_long-long_extent/2.
-    if lat > -40:
-        min_long += 40+lat
+    offset = 0
+    #if lat > -40:
+    #    min_long += 40+lat
+    if hasattr(lat, "__len__"):
+        sel = lat > -40
+        min_long[sel] += 40+lat[sel]
+    else:
+        if lat > -40:
+            min_long += 40+lat
+
     max_long = min_long+long_extent
     return min_long,max_long
 
@@ -51,6 +59,7 @@ def get_long_edges(lat,ns):
     latfac = np.cos(lat*np.pi/180.)
     long_extent = ns*sec_size/latfac
     min_long = center_long-long_extent/2.
+    
     if lat > -40:
         min_long += 40+lat
 
@@ -100,6 +109,9 @@ def get_centers(sn,nn):
     return ral,decl
 
 def write_table_4back(year=2027,day=10,microns=1.4,daystep=10,ido_view='0'):
+    '''
+    this produces a table to input to https://irsa.ipac.caltech.edu/applications/BackgroundModel/
+    '''
     rall = []
     decll = []
     ntot = 0
@@ -336,19 +348,19 @@ def plot_back_proj(day=10,year=2027,microns=1.4,proj='moll',gs=10,vm=0.3,vx=0.7,
     if back == 'total':
         backcol = -8
         titl = 'Total backgroud (MJy/sr) at '+str(microns)+' microns; '+str(year)+' day '+str(day)
-        plot_fn = 'background/plots/background_'+str(year)+'_'+str(day)+'_'+str(microns)+'_new.png'
+        plot_fn = 'data/background/plots/background_'+str(year)+'_'+str(day)+'_'+str(microns)+'_new.png'
     if back == 'zodi':
         backcol = -12
         titl = 'Zodi backgroud (MJy/sr) at '+str(microns)+' microns; '+str(year)+' day '+str(day)
-        plot_fn = 'background/plots/zodi_background_'+str(year)+'_'+str(day)+'_'+str(microns)+'_new.png'
+        plot_fn = 'data/background/plots/zodi_background_'+str(year)+'_'+str(day)+'_'+str(microns)+'_new.png'
     if back == 'ism':
         backcol = -11
         titl = 'ism backgroud (MJy/sr) at '+str(microns)+' microns; '+str(year)+' day '+str(day)
-        plot_fn = 'background/plots/ism_background_'+str(year)+'_'+str(day)+'_'+str(microns)+'_new.png'
+        plot_fn = 'data/background/plots/ism_background_'+str(year)+'_'+str(day)+'_'+str(microns)+'_new.png'
     if back == 'stars':
         backcol = -10
         titl = 'stars backgroud (MJy/sr) at '+str(microns)+' microns; '+str(year)+' day '+str(day)
-        plot_fn = 'background/plots/stars_background_'+str(year)+'_'+str(day)+'_'+str(microns)+'_new.png'
+        plot_fn = 'data/background/plots/stars_background_'+str(year)+'_'+str(day)+'_'+str(microns)+'_new.png'
    
     plt.scatter(x,y,c=d[backcol][sel],s=gs,marker='s',vmin=vm,vmax=vx)
     #plt.hexbin(x,y,d[-8],gridsize=gs)
@@ -366,7 +378,7 @@ def plot_back_proj(day=10,year=2027,microns=1.4,proj='moll',gs=10,vm=0.3,vx=0.7,
 
 def plot_relnum(day=10,year=2027,microns=1.4,proj='moll',gs=20,vm=0.5,vx=1,daystep=10,back='total',newfoot='_newfoot',mdz ='_medianzodi',cmap='plasma',latmax=90, lat0=0, lon0=0,latmin=-90):
     #d = np.loadtxt('back_'+str(year)+str(day)+'_'+str(microns)+'_out.txt').transpose()
-    d = np.loadtxt('background/background_'+str(year)+'all_daystep'+str(daystep)+'_'+str(microns)+newfoot+mdz+'.txt').transpose()
+    d = np.loadtxt('data/background/background_'+str(year)+'all_daystep'+str(daystep)+'_'+str(microns)+newfoot+mdz+'.txt').transpose()
     if mdz == '':
         sel = d[-5] == day
     else:
@@ -436,19 +448,19 @@ def plot_relnum(day=10,year=2027,microns=1.4,proj='moll',gs=20,vm=0.5,vx=1,dayst
 
     if back == 'total':
         backcol = -8
-        plot_fn = 'background/plots/background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_new.png'
+        plot_fn = 'data/background/plots/background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_new.png'
     if back == 'zodi':
         backcol = -12
         #titl = 'Zodi backgroud (MJy/sr) at '+str(microns)+' microns; '+str(year)+' day '+str(day)
-        plot_fn = 'background/plots/zodi_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_new.png'
+        plot_fn = 'data/background/plots/zodi_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_new.png'
     if back == 'ism':
         backcol = -11
         #titl = 'ism backgroud (MJy/sr) at '+str(microns)+' microns; '+str(year)+' day '+str(day)
-        plot_fn = 'background/plots/ism_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_new.png'
+        plot_fn = 'data/background/plots/ism_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_new.png'
     if back == 'stars':
         backcol = -10
         #titl = 'stars backgroud (MJy/sr) at '+str(microns)+' microns; '+str(year)+' day '+str(day)
-        plot_fn = 'background/plots/stars_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_new.png'
+        plot_fn = 'data/background/plots/stars_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_new.png'
    
     minback = np.min(d[-8][sel]) #minimum overall
     minsp = np.min(d[backcol][sel]) #minimum for quantity of interest
@@ -493,7 +505,7 @@ def plot_relnum(day=10,year=2027,microns=1.4,proj='moll',gs=20,vm=0.5,vx=1,dayst
 def plot_relnum_half(day=10,year=2027,microns=1.4,proj='moll',gs=20,vm=0.5,vx=1,daystep=10,back='total',newfoot='_newfoot',mdz ='_medianzodi',cmap='Greys',latmax=90, lat0=0, lon0=0,latmin=-90,height=2,ratio=3):
     #d = np.loadtxt('back_'+str(year)+str(day)+'_'+str(microns)+'_out.txt').transpose()
     plt.clf()
-    d = np.loadtxt('background/background_'+str(year)+'all_daystep'+str(daystep)+'_'+str(microns)+newfoot+mdz+'.txt').transpose()
+    d = np.loadtxt('data/background/background_'+str(year)+'all_daystep'+str(daystep)+'_'+str(microns)+newfoot+mdz+'.txt').transpose()
     if mdz == '':
         sel = d[-5] == day
     else:
@@ -566,19 +578,19 @@ def plot_relnum_half(day=10,year=2027,microns=1.4,proj='moll',gs=20,vm=0.5,vx=1,
 
     if back == 'total':
         backcol = -8
-        plot_fn = 'background/plots/background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_half.png'
+        plot_fn = 'data/background/plots/background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_half.png'
     if back == 'zodi':
         backcol = -12
         #titl = 'Zodi backgroud (MJy/sr) at '+str(microns)+' microns; '+str(year)+' day '+str(day)
-        plot_fn = 'background/plots/zodi_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_half.png'
+        plot_fn = 'data/background/plots/zodi_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_half.png'
     if back == 'ism':
         backcol = -11
         #titl = 'ism backgroud (MJy/sr) at '+str(microns)+' microns; '+str(year)+' day '+str(day)
-        plot_fn = 'background/plots/ism_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_half.png'
+        plot_fn = 'data/background/plots/ism_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_half.png'
     if back == 'stars':
         backcol = -10
         #titl = 'stars backgroud (MJy/sr) at '+str(microns)+' microns; '+str(year)+' day '+str(day)
-        plot_fn = 'background/plots/stars_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_half.png'
+        plot_fn = 'data/background/plots/stars_background_'+str(year)+'_'+str(day)+'_'+str(microns)+newfoot+mdz+'_'+cmap+'_half.png'
    
     minback = np.min(d[-8][sel]) #minimum overall
     minsp = np.min(d[backcol][sel]) #minimum for quantity of interest
@@ -688,19 +700,17 @@ def in_foot(lat,long):
 if __name__ == '__main__':
     #do a test on N randoms and plot kept points in red
     import sys
-    back = str(sys.argv[1])
-    mkbackgif(back)
-#     nran = int(sys.argv[1])
-#     acosl = np.random.rand(nran)*2-1 #distribute randomly in arccos
-#     ral = np.random.rand(nran)*360-180
-#     decl = np.arccos(acosl)
-#     decl = 180/np.pi*(decl-np.pi/2.)
-#     lat,long = in_foot(decl,ral)
-#     area = len(long)/len(ral)*360*360/np.pi
-#     print('based on the number of points kept, the implied area is '+str(round(area,1))+' square degrees')
-#     plt.plot(ral,decl,'k,')
-#     plt.plot(long,lat,'r,')
-#     plt.xlabel('longitude coordinate (degrees)')
-#     plt.ylabel('latitude coordinate (degrees)')
-#     plt.show()
+    nran = int(sys.argv[1])
+    acosl = np.random.rand(nran)*2-1 #distribute randomly in arccos
+    ral = np.random.rand(nran)*360-180
+    decl = np.arccos(acosl)
+    decl = 180/np.pi*(decl-np.pi/2.)
+    lat,long = in_foot(decl,ral)
+    area = len(long)/len(ral)*360*360/np.pi
+    print('based on the number of points kept, the implied area is '+str(round(area,1))+' square degrees')
+    plt.plot(ral,decl,'k,')
+    plt.plot(long,lat,'r,')
+    plt.xlabel('longitude coordinate (degrees)')
+    plt.ylabel('latitude coordinate (degrees)')
+    plt.show()
     
