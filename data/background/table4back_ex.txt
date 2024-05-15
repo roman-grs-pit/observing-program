@@ -1,0 +1,7 @@
+\example of an IPAC table for BackgroundModel
+\obsloc is 0 for Earth-Sun L2, 3 for Earth 
+| ra       | dec      | wavelength |  year  |  day   | obsloc | ido_view |
+| double   | double   | double     |  char  |  char  |  char  |  char    |
+| deg      | deg      | microns    |        |        |        |          |
+  10.684710  41.268749    1.0        2019      180       0         1     
+  92.820389 -66.155838   12.0        2021      180       3         0     
