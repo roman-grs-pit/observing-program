@@ -59,7 +59,7 @@ class RomanCoordsTransform:
         )
 
     def roman_detector_layout(
-        self, arrays, array_centers, ax, label="", units=""
+        self, arrays, array_centers, ax, label="", units="", clip_on=False,
     ):
         A_xmin = A_xmax = A_ymin = A_ymax = 0.0
 
@@ -85,7 +85,7 @@ class RomanCoordsTransform:
             if A_ymax < Ay1:
                 A_ymax = Ay1
 
-            ax.text(x0, y0, "%i" % sca)
+            ax.text(x0, y0, "%i" % sca, clip_on=clip_on)
 
             patch = patches.Polygon(A, ec="k", lw=1, fill=False)
             ax.add_patch(patch)
@@ -118,29 +118,74 @@ class RomanCoordsTransform:
         ax.set_xlabel(xlabel_str)
         ax.set_ylabel(ylabel_str)
 
-    def inside_roman_fpa(self, x, y, ax):
-        self.inside_roman_detector(self.fpa_arrays, x, y, ax)
+    #def inside_roman_fpa(self, x, y, ax):
+    def inside_roman_fpa(self, x, y):
+        """
+        Filters a list/arrary of FPA [mm] coordinates that are inside each detector
 
-    def inside_roman_wfi(self, x, y, ax):
-        self.inside_roman_detector(self.wfi_arrays, x, y, ax)
+        Parameters
+        ----------
+        x : list or array
+            FPA x-coordinates [mm].
 
-    def inside_roman_detector(self, arrays, x, y, ax):
-        for i in range(18):
-            sca = i + 1
+        y : list or array
+            FPA y-coordinates [mm].
 
-            # x0,y0 = array_centers[sca]
+        Returns
+        -------
+        SCAs : list
+            List of SCAs that FPA coordinates [mm].
 
-            A = arrays["%i" % (sca)]
 
-            inside_filt = [
-                RomanCoordsTransform.insidePolygon(A, [x0, y0])
-                for x0, y0 in zip(x, y)
-            ]
+        """
+        return self.inside_roman_detector(self.fpa_arrays, x, y)
+        #return self.inside_roman_detector(self.fpa_arrays, x, y, ax)
 
-            x_in = x[inside_filt]
-            y_in = y[inside_filt]
+    #def inside_roman_wfi(self, x, y, ax):
+    def inside_roman_wfi(self, x, y):
+        """
+        Filters a list/arrary of WFI [deg] coordinates that are inside each detector
 
-            ax.scatter(x_in, y_in, c="r", s=50)
+        Parameters
+        ----------
+        x : list or array
+            WFI x-coordinates [deg].
+
+        y : list or array
+            WFI y-coordinates [deg].
+
+        Returns
+        -------
+        SCAs : list
+            List of SCAs that WFI coordinates [deg].
+
+        """
+        return self.inside_roman_detector(self.wfi_arrays, x, y)
+
+    def inside_roman_detector(self, arrays, x, y):
+
+        SCAs = []
+
+        for x0, y0 in zip(x, y):
+
+            for i in range(18):
+                sca = i + 1
+
+                # x0,y0 = array_centers[sca]
+
+                A = arrays["%i" % (sca)]
+
+                inside = RomanCoordsTransform.insidePolygon(A, [x0, y0])
+                #print(inside)
+
+                if inside:
+                   SCAs.append(sca)
+                   break
+
+            else:
+                SCAs.append(0)
+
+        return SCAs
 
     def measure_array_angles(self):
         for i in range(18):
@@ -255,12 +300,12 @@ class RomanCoordsTransform:
         """
 
         x0, y0 = self.wfi_zeros[str(sca)]
-        # print(x0,y0)
+        #print(x0,y0)
 
         plate_scale_arc = 0.11  # arcsec/pixel
         plate_scale_deg = plate_scale_arc / 3600.0  # deg/pixel
 
-        xp *= plate_scale_deg
+        xp *= -1 * plate_scale_deg
         yp *= -1 * plate_scale_deg
 
         x = xp + x0
@@ -302,7 +347,7 @@ class RomanCoordsTransform:
         xp = x - x0
         yp = y - y0
 
-        xp /= plate_scale_deg
+        xp /= -1 * plate_scale_deg
         yp /= -1 * plate_scale_deg
 
         return xp, yp
@@ -520,7 +565,7 @@ class RomanCoordsTransform:
         yp = []
         sca = []
 
-        if clip_bad:
+        if clip_bad == 1:
             for j in range(len(x)):
                 for i in range(18):
                     sca0 = i + 1
@@ -533,6 +578,29 @@ class RomanCoordsTransform:
                         xp.append(x0)
                         yp.append(y0)
                         sca.append(sca0)
+
+        elif clip_bad == -1:
+
+            for j in range(len(x)):
+
+                for i in range(18):
+                    sca0 = i + 1
+
+                    A = self.wfi_arrays["%i" % (sca0)]
+
+                    if RomanCoordsTransform.insidePolygon(A, [x[j], y[j]]):
+                        x0, y0 = self.wfi_to_detector(x[j], y[j], str(sca0))
+
+                        xp.append(x0)
+                        yp.append(y0)
+                        sca.append(sca0)
+                        break
+
+                else:
+                    xp.append(-1)
+                    yp.append(-1)
+                    sca.append(0)
+
 
         else:
             sep = np.zeros((18, x.shape[0]))
@@ -614,6 +682,7 @@ class RomanCoordsTransform:
         csv_file="WFIRST_WIM_190720.csv",
         json_file="roman_wfi_detector_coords.json",
         col_prefix="col",
+        field=4,
         write=0,
     ):
         tbl = RomanCoordsTransform.read_data(
@@ -622,7 +691,7 @@ class RomanCoordsTransform:
 
         wfi_arrays = RomanCoordsTransform.build_roman_arrays(tbl)
         wfi_centers = RomanCoordsTransform.build_roman_array_centers(tbl)
-        wfi_zeros = RomanCoordsTransform.build_roman_array_field(tbl, field=3)
+        wfi_zeros = RomanCoordsTransform.build_roman_array_field(tbl, field=field)
 
         fpa_arrays = RomanCoordsTransform.build_roman_arrays(
             tbl, x_key="FPA_X", y_key="FPA_Y"
@@ -631,7 +700,7 @@ class RomanCoordsTransform:
             tbl, x_key="FPA_X", y_key="FPA_Y"
         )
         fpa_zeros = RomanCoordsTransform.build_roman_array_field(
-            tbl, x_key="FPA_X", y_key="FPA_Y", field=3
+            tbl, x_key="FPA_X", y_key="FPA_Y", field=field
         )
 
         sca_arrays = RomanCoordsTransform.build_roman_arrays(
@@ -641,7 +710,7 @@ class RomanCoordsTransform:
             tbl, x_key="SCA_X", y_key="SCA_Y"
         )
         sca_zeros = RomanCoordsTransform.build_roman_array_field(
-            tbl, x_key="SCA_X", y_key="SCA_Y", field=3
+            tbl, x_key="SCA_X", y_key="SCA_Y", field=field
         )
 
         json_dict = {}
@@ -787,7 +856,7 @@ class RomanCoordsTransform:
         # cartessian to PA -- PA to pointing to boresight
     
         #theta = (PA + 90.)
-        theta = PA + 180
+        theta = PA + 180 - 60.
 
         #print(theta)
         theta *= np.pi/180. # radians
@@ -805,13 +874,27 @@ class RomanCoordsTransform:
     
         return R
 
-    def wfi_sky_pointing(self, RA, Dec, PA, ax=None, alpha=1.0, c="k", ds9=True):
+    def wfi_sky_pointing(
+            self, 
+            RA, 
+            Dec, 
+            PA, 
+            ax=None, 
+            alpha=1.0, 
+            lw=1,
+            c="k", 
+            ds9=True, 
+            clip_on=False,
+            plot_center=True,
+            plot_labels=True
+        ):
 
         if ax == None:
             fig = plt.figure()
             ax = fig.add_subplot(111)
-    
-        ax.scatter(RA, Dec, marker="o", s=50, fc="None", ec="tab:red")
+   
+        if plot_center: 
+            ax.scatter(RA, Dec, marker="x", s=50, c=c)
 
         rot_arr = self.wfi_pa_rotation(PA)
         #print(rot_arr)
@@ -846,9 +929,18 @@ class RomanCoordsTransform:
             A_vert_rot[:,1] += Dec
             A_vert_rot[:,0] *= 1. / np.cos(A_vert_rot[:,1] * np.pi / 180.)
             A_vert_rot[:,0] += RA
-            
-            ax.text(x0/np.cos((y0+Dec)*np.pi/180.) + RA, y0 + Dec, "%i" % sca, c=c, alpha=alpha)
-            patch = patches.Polygon(A_vert_rot, ec=c, lw=1, fill=False, alpha=alpha)
+           
+            if plot_labels: 
+                ax.text(
+                    x0/np.cos((y0+Dec)*np.pi/180.) + RA, 
+                    y0 + Dec,
+                    "%i" % sca, 
+                    c=c, 
+                    alpha=alpha, 
+                    clip_on=clip_on,
+                )
+
+            patch = patches.Polygon(A_vert_rot, ec=c, lw=lw, fill=False, alpha=alpha)
             ax.add_patch(patch)
 
             
@@ -887,7 +979,7 @@ class RomanCoordsTransform:
         # in RA, Dec coordinates
         return info, ax
 
-    def point_WFI_to_obj(self, RA, Dec, x_pix, y_pix, sca, ax=None, alpha=1.0, c="k", ds9=True):
+    def point_WFI_to_obj(self, RA, Dec, PA, x_pix, y_pix, sca, ax=None, alpha=1.0, c="k", ds9=True, clip_on=False, lw=1.0, plot_labels=True, plot_center=True):
         
         info = {}
         
@@ -897,14 +989,21 @@ class RomanCoordsTransform:
     
         #rct = RomanCoordsTransform(file_path=input_path)
         dx, dy = self.detector_to_wfi(x_pix, y_pix, sca) # WFI coords [deg]
-        print(dx, dy)
+
+        A_vec = np.array([-1*dx, dy]) 
+        #print(dx, dy)
+        rot_arr = self.wfi_pa_rotation(PA)
+        x0, y0 = np.dot(A_vec, rot_arr)             
+
+        dec_ptg = Dec - y0
+        ra_ptg = RA - x0/np.cos(dec_ptg*np.pi/180.)
+        #print(ra_ptg, dec_ptg)
     
-        dec_ptg = Dec + dy
-        ra_ptg = RA - dx/np.cos(dec_ptg*np.pi/180.)
-        print(ra_ptg, dec_ptg)
-    
-        PA = 0. 
-        roman_arrays, _ = self.wfi_sky_pointing(ra_ptg, dec_ptg, PA, ax=ax, alpha=alpha, c=c, ds9=ds9)
+        #PA = 0. 
+        roman_arrays, _ = self.wfi_sky_pointing(ra_ptg, dec_ptg, PA, ax=ax, alpha=alpha, c=c, ds9=ds9,
+clip_on=clip_on, lw=lw, plot_labels=plot_labels, plot_center=plot_center)
         info["roman_arrays"] = roman_arrays
     
         return ra_ptg, dec_ptg, ax, info
+
+
