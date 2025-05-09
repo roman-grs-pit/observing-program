@@ -886,14 +886,15 @@ class RomanCoordsTransform:
             ds9=True, 
             clip_on=False,
             plot_center=True,
-            plot_labels=True
+            plot_labels=True,
+            do_plot = True
         ):
 
-        if ax == None:
+        if ax == None and do_plot:
             fig = plt.figure()
             ax = fig.add_subplot(111)
    
-        if plot_center: 
+        if plot_center and do_plot: 
             ax.scatter(RA, Dec, marker="x", s=50, c=c)
 
         rot_arr = self.wfi_pa_rotation(PA)
@@ -930,7 +931,7 @@ class RomanCoordsTransform:
             A_vert_rot[:,0] *= 1. / np.cos(A_vert_rot[:,1] * np.pi / 180.)
             A_vert_rot[:,0] += RA
            
-            if plot_labels: 
+            if plot_labels and do_plot: 
                 ax.text(
                     x0/np.cos((y0+Dec)*np.pi/180.) + RA, 
                     y0 + Dec,
@@ -941,7 +942,8 @@ class RomanCoordsTransform:
                 )
 
             patch = patches.Polygon(A_vert_rot, ec=c, lw=lw, fill=False, alpha=alpha)
-            ax.add_patch(patch)
+            if do_plot:
+                ax.add_patch(patch)
 
             
             info[sca] = {
@@ -969,12 +971,13 @@ class RomanCoordsTransform:
                 ####################
             
         
-        aspect = 1./np.cos(Dec * np.pi/180.)
-        ax.set_aspect(aspect)
+        if do_plot:
+            aspect = 1./np.cos(Dec * np.pi/180.)
+            ax.set_aspect(aspect)
     
-        x0, x1 = ax.get_xlim()
-        if x1 > x0:
-            ax.set_xlim(x1, x0)
+            x0, x1 = ax.get_xlim()
+            if x1 > x0:
+                ax.set_xlim(x1, x0)
         
         # in RA, Dec coordinates
         return info, ax
