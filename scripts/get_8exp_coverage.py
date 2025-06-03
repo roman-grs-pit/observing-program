@@ -191,7 +191,7 @@ tout = Table()
 tout['RA'] = ral_tot
 tout['DEC'] = decl_tot
 tout['NOBS'] = np.array(nobs,dtype=int)
-tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'grid.ecsv')
+tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'grid.ecsv',overwrite=True)
 
 #make nobs figure
 plt.clf()
