@@ -97,7 +97,8 @@ ndith = 2
 decpa = args.pa_step_dec
 rapa = args.pa_step_ra
 outdir = out_root+'ra'+str(ra0)+'dec'+str(dec0)+'_dithra'+str(args.dithra)+'dec'+str(args.dithdec)+'_para'+str(args.pa_step_ra)+str(args.pa_step_dec)+'/'
-os.makedirs(outdir)
+if not os.path.exists(dirout):
+    os.makedirs(outdir)
 decoffl = [decpa,decpa,-decpa,-decpa]
 raoffl = [rapa,rapa/3,-rapa/3,-rapa]
 pa_off = 60 #this undoes the rotation applied by default to a pa=0 
