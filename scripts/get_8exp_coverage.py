@@ -163,11 +163,11 @@ plt.title('all 8 exposures')
 plt.savefig(outdir+'all8exp.png')
 plt.show()
 
-min_lambda = 1
-max_lambda = 1.9
+minwav = 1
+maxwav = 1.9
 nobs = np.zeros(len(ral_tot))
-minwav = (1+ztest)*halpha
-minwav = (1+ztest)*hbeta
+#minwav = (1+ztest)*halpha
+#minwav = (1+ztest)*hbeta
 dets = np.arange(1,19)
 for PA,decoff,raoff in zip(pal,decoffl,raoffl):
     for dith in range(0,ndith):
