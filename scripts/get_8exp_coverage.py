@@ -192,7 +192,7 @@ tout = Table()
 tout['RA'] = ral_tot
 tout['DEC'] = decl_tot
 tout['NOBS'] = nobs
-tout.write(outdir+'nobsgrid.ecsv')
+tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'grid.ecsv')
 
 #make nobs figure
 cmap = plt.get_cmap('jet', 8)
@@ -205,5 +205,5 @@ plt.ylim(min(decl_tot),max(decl_tot))
 plt.xlabel('ra (degrees)')
 plt.ylabel('dec (degrees)')
 plt.title(r'footprint 4 rolls/2 dithers')
-plt.savefig(outdir+'nobs.png')
+plt.savefig(outdir+'nobs'+str(minwav)+str(maxwav)+'.png')
 plt.show()
