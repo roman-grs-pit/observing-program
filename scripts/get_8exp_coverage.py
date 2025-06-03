@@ -190,10 +190,11 @@ for PA,decoff,raoff in zip(pal,decoffl,raoffl):
 tout = Table()
 tout['RA'] = ral_tot
 tout['DEC'] = decl_tot
-tout['NOBS'] = nobs
+tout['NOBS'] = np.array(nobs,dtype=int)
 tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'grid.ecsv')
 
 #make nobs figure
+plt.clf()
 cmap = plt.get_cmap('jet', 8)
 sel = nobs > 0
 plt.scatter(np.array(ral_tot)[sel],np.array(decl_tot)[sel],c=nobs[sel],s=.1,cmap=cmap,vmin=0.5,vmax=8.5)
