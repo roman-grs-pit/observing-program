@@ -89,8 +89,6 @@ parser.add_argument("--pa_step_ra", help="step in the ra direction with each pa 
 
 
 args = parser.parse_args()
-common.printlog(str(args),logger)
-
 
 ra0 = args.ra0
 dec0 = args.dec0
