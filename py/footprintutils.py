@@ -1,7 +1,7 @@
 from astropy.io import fits
 import numpy as np
 
-def fake_header(crval1, crval2, crpix=512, crpix2=2044,crpix1=2044, cdelt1=-0.11, cdelt2=0.11,
+def fake_header(crval1, crval2, crpix=512, crpix2=2044,crpix1=2044, cdelt1=0.11, cdelt2=0.11,
                 crota2=0.0,naxis1=4088,naxis2=4088):
 
     # crota2 - degree
@@ -23,7 +23,7 @@ def fake_header(crval1, crval2, crpix=512, crpix2=2044,crpix1=2044, cdelt1=-0.11
     #cd2_2 = cdelt2*np.cos(theta)
     
     R = np.array([
-        [np.cos(theta), np.sin(theta)],
+        [-1*np.cos(theta), -1*np.sin(theta)],
         [-1*np.sin(theta), np.cos(theta)],
     ])
 
