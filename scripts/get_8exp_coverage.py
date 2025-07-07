@@ -22,8 +22,13 @@ os.environ['github_dir']='/global/common/software/m4943/grizli0/'
 #similarly, should change to make this an environment variable
 code_data_dir = '/global/common/software/m4943/grizli0/observing-program/data/'
 
-import roman_coords_transform as ctrans
-rctrans = ctrans.RomanCoordsTransform(file_path=code_data_dir)
+#import roman_coords_transform as ctrans
+#rctrans = ctrans.RomanCoordsTransform(file_path=code_data_dir)
+
+import pysiaf
+from pysiaf.utils.rotations import attitude
+rsiaf = pysiaf.Siaf('Roman')
+wfi_cen = rsiaf['WFI_CEN']
 
 import footprintutils as fp
 import optical_model
@@ -76,6 +81,35 @@ def get_pixl(coords,detfoot,detnum,PA):
     pixels = w.world_to_pixel(coords)
     return pixels
 
+def get_pixl_siaf(ra,dec,att_in,detnum):
+    rap = f'WFI{detnum :02}_FULL'
+    wfi = rsiaf[rap]
+    wfi.set_attitude_matrix(att_in)
+    pixels = wfi.sky_to_sci(ra,dec)
+    cen_ra,cen_dec = wfi.idl_to_sky(0, 0)
+    ddec = abs(dec-cen_dec)
+    sel = ddec > 0.1
+    pixels[0][sel] *= -999
+    return pixels
+
+def plot_dets_rsiaf(att_in,ax):
+    #roman_apertures = [f'WFI{i + 1:02}_FULL' ]
+      
+    #for rap in roman_apertures:
+    for i in range(18):
+        rap = f'WFI{i + 1:02}_FULL'
+        wfi = rsiaf[rap]
+        wfi.set_attitude_matrix(att_in)
+
+        wfi_ra, wfi_dec = wfi.idl_to_sky(0, 0)
+        #plt.plot(wfi_ra,wfi_dec,'k,')
+        ax.text(wfi_ra,wfi_dec,str(i+1))
+        corners_x = np.array([1,4088,4088,1,1])
+        corners_y = np.array([1,1,4088,4088,1])
+        corners_ra,corners_dec = wfi.sci_to_sky(corners_x, corners_y)
+        ax.plot(corners_ra,corners_dec,'k')
+
+
 ral_tot,decl_tot = mkgrid(0,0,1,100)
 coords = SkyCoord(ra=ral_tot*u.degree,dec=decl_tot*u.degree, frame='icrs')
 
@@ -111,7 +145,9 @@ decoff = decoffl[0]#decpa/2
 raoff = raoffl[0]
 #if pa > 100:
 #    decoff = -decpa/2
-a = rctrans.wfi_sky_pointing(ra0+raoff, dec0+decoff, pa, ds9=False,ax=ax)#+dith*dithstep[0]
+#a = rctrans.wfi_sky_pointing(ra0+raoff, dec0+decoff, pa, ds9=False,ax=ax)#+dith*dithstep[0]
+att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0+raoff, dec0+decoff, pa)
+plot_dets_rsiaf(att,ax)
 ax.set_xlim(-.6, 0.6)
 ax.set_ylim(-0.4,.4)
 plt.grid()
@@ -128,7 +164,9 @@ for dith in range(0,ndith):
     raoff = raoffl[0]
     #if pa > 100:
     #    decoff = -decpa/2
-    a = rctrans.wfi_sky_pointing(ra0+raoff+dith*dithstep[0], dec0+decoff+dith*dithstep[1], pa, ds9=False,ax=ax)#+dith*dithstep[0]
+    #a = rctrans.wfi_sky_pointing(ra0+raoff+dith*dithstep[0], dec0+decoff+dith*dithstep[1], pa, ds9=False,ax=ax)#+dith*dithstep[0]
+    att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0+raoff+dith*dithstep[0], dec0+decoff+dith*dithstep[1], pa)
+    plot_dets_rsiaf(att,ax)
 ax.set_xlim(-.6, 0.6)
 ax.set_ylim(-0.4,.4)
 plt.title('2 dithers')
@@ -141,7 +179,10 @@ for pa,decoff,raoff in zip(pal,decoffl,raoffl):
     #decoff = decpa/2
     #if pa > 100:
     #    decoff = -decpa/2
-    a = rctrans.wfi_sky_pointing(ra0+raoff, dec0+decoff, pa, ds9=False,ax=ax)#+dith*dithstep[0]
+    #a = rctrans.wfi_sky_pointing(ra0+raoff, dec0+decoff, pa, ds9=False,ax=ax)#+dith*dithstep[0]
+    att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0+raoff, dec0+decoff, pa)
+    plot_dets_rsiaf(att,ax)
+
 ax.set_xlim(-.6, 0.6)
 ax.set_ylim(-0.4,.4)
 plt.title('4 rolls')
@@ -157,7 +198,10 @@ for pa,decoff,raoff in zip(pal,decoffl,raoffl):
         #decoff = decpa/2
         #if pa > 100:
         #    decoff = -decpa/2
-        a = rctrans.wfi_sky_pointing(ra0+raoff+dith*dithstep[0], dec0+decoff+dith*dithstep[1], pa, ds9=False,ax=ax)#+dith*dithstep[0]
+        #a = rctrans.wfi_sky_pointing(ra0+raoff+dith*dithstep[0], dec0+decoff+dith*dithstep[1], pa, ds9=False,ax=ax)#+dith*dithstep[0]
+        att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0+raoff+dith*dithstep[0], dec0+decoff+dith*dithstep[1], pa)
+        plot_dets_rsiaf(att,ax)
+
 ax.set_xlim(-.6, 0.6)
 ax.set_ylim(-0.4,.4)
 plt.title('all 8 exposures')
@@ -176,9 +220,11 @@ for PA,decoff,raoff in zip(pal,decoffl,raoffl):
         #if PA > 100:
         #    decoff = -decpa/2
 
-        dfoot = rctrans.wfi_sky_pointing(ra0+raoff+dith*dithstep[0], dec0+decoff+dith*dithstep[1], PA, ds9=False,do_plot=False)
+        #dfoot = rctrans.wfi_sky_pointing(ra0+raoff+dith*dithstep[0], dec0+decoff+dith*dithstep[1], PA, ds9=False,do_plot=False)
+        att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0+raoff+dith*dithstep[0], dec0+decoff+dith*dithstep[1], PA)
         for det in dets:
-            pixels = get_pixl(coords,dfoot,det,PA-pa_off)
+            #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
+            pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
             for i in range(0,len(pixels[0])):
                 xpix = pixels[0][i]
                 ypix = pixels[1][i]
