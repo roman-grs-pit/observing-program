@@ -202,19 +202,19 @@ for PA,decoff,raoff in zip(pal,decoffl,raoffl):
         for decind in range(0,ndec):
             print('at decind '+str(decind))
             for dith in range(0,ndith):
-				ra = ra0+raind*rastep+raoff+dith*dithstep[0]
-				dec = dec0+decstep*decind+decoff+dith*dithstep[1]
-				att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra,dec, PA)
-				for det in dets:
-					#pixels = get_pixl(coords,dfoot,det,PA-pa_off)
-					pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
-					for i in range(0,len(pixels[0])):
-						xpix = pixels[0][i]
-						ypix = pixels[1][i]
-						test = 0
-						if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
-							test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
-						nobs[i] += test
+                ra = ra0+raind*rastep+raoff+dith*dithstep[0]
+                dec = dec0+decstep*decind+decoff+dith*dithstep[1]
+                att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra,dec, PA)
+                for det in dets:
+                    #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
+                    pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
+                    for i in range(0,len(pixels[0])):
+                        xpix = pixels[0][i]
+                        ypix = pixels[1][i]
+                        test = 0
+                        if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
+                            test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
+                        nobs[i] += test
 
 tout = Table()
 tout['RA'] = ral_tot
