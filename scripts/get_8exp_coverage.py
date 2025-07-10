@@ -136,17 +136,19 @@ dec0 = args.dec0
 
 decm = dec0-0.4
 decx = dec0+0.4
-ram = ra0-0.6
-rax = ra0+0.6
+ram = ra0-0.6/np.cos(dec0*np.pi/180)
+rax = ra0+0.6/np.cos(dec0*np.pi/180)
 randens = args.randens
 fullsky_area = 360.*360/np.pi
-nran = int(randens*fullsky_area)
-cosl = np.random.rand(nran)*2-1 #distribute randomly in arccos
 cosmin = np.cos(np.pi/180*(decm+90))*-1
 cosmax = np.cos(np.pi/180*(decx+90))*-1
-print(cosmin,cosmax,np.min(cosl),np.max(cosl))
-selcos = cosl > cosmin
-selcos &= cosl < cosmax
+fracdec = (cosmax-cosmin)/2
+nran = int(randens*fullsky_area*fracdec)
+print(cosmin,cosmax,np.min(cosl),np.max(cosl),nran,nran/fracdec,fracdec)
+#selcos = cosl > cosmin
+#selcos &= cosl < cosmax
+cosl = np.random.rand(nran)*fracdec+cosmin#2-1 #distribute randomly in arccos
+
 ral = np.random.rand(nran)*360-180
 ral = ral[selcos]
 decl = np.arccos(cosl[selcos])*180/np.pi-90
