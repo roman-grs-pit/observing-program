@@ -150,8 +150,8 @@ print(cosmin,cosmax,nran,nran/fracdec,fracdec)
 cosl = np.random.rand(nran)*fracdec+cosmin#2-1 #distribute randomly in arccos
 
 ral = np.random.rand(nran)*360-180
-ral = ral[selcos]
-decl = np.arccos(cosl[selcos])*180/np.pi-90
+ral = ral
+decl = np.arccos(cosl)*180/np.pi-90
 
 print('made all sky randoms and cut to declination range')
 
