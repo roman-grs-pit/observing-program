@@ -126,7 +126,6 @@ parser.add_argument("--decmin", help="dec center",default=-1,type=float)
 parser.add_argument("--decmax", help="dec center",default=1,type=float)
 parser.add_argument("--ra0", help="ra center for first chunk",default=9.25,type=float)
 parser.add_argument("--dec0", help="ra center",default=-0.75,type=float)
-parser.add_argument("--decmin", help="dec center",default=-1,type=float)
 
 parser.add_argument("--randens", help="density of random points /deg2 to use",default=2500,type=float)
 
