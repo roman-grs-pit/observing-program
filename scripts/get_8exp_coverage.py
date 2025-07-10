@@ -142,8 +142,8 @@ randens = args.randens
 fullsky_area = 360.*360/np.pi
 nran = int(randens*fullsky_area)
 cosl = np.random.rand(nran)*2-1 #distribute randomly in arccos
-cosmin = np.cos(np.pi/180*(decm+90))
-cosmax = np.cos(np.pi/180*(decx+90))
+cosmin = np.cos(-np.pi/180*(decm+90))
+cosmax = np.cos(-np.pi/180*(decx+90))
 print(cosmin,cosmax,np.min(cosl),np.max(cosl))
 selcos = cosl > cosmin
 selcos &= cosl < cosmax
