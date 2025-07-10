@@ -144,7 +144,7 @@ cosmin = np.cos(np.pi/180*(decm+90))*-1
 cosmax = np.cos(np.pi/180*(decx+90))*-1
 fracdec = (cosmax-cosmin)/2
 nran = int(randens*fullsky_area*fracdec)
-print(cosmin,cosmax,np.min(cosl),np.max(cosl),nran,nran/fracdec,fracdec)
+print(cosmin,cosmax,nran,nran/fracdec,fracdec)
 #selcos = cosl > cosmin
 #selcos &= cosl < cosmax
 cosl = np.random.rand(nran)*fracdec+cosmin#2-1 #distribute randomly in arccos
