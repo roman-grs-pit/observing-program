@@ -199,11 +199,14 @@ for PA,decoff,raoff in zip(pal,decoffl,raoffl):
     print('at roll '+str(PA))
     for raind in range(0,nra):
         print('at raind '+str(raind))
+        deccoloff = 0
+        if raind == 1:
+            deccoloff = -0.1
         for decind in range(0,ndec):
             print('at decind '+str(decind))
             for dith in range(0,ndith):
                 ra = ra0+raind*rastep+raoff+dith*dithstep[0]
-                dec = dec0+decstep*decind+decoff+dith*dithstep[1]
+                dec = dec0+decstep*decind+decoff+dith*dithstep[1]+deccoloff
                 att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra,dec, PA)
                 for det in dets:
                     #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
