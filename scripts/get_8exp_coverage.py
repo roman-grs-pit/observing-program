@@ -121,7 +121,7 @@ def plot_dets_rsiaf(att_in,ax):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--ra0", help="ra center",default=2)
-parser.add_argument("--randens", help="density of random points /deg2 to use",default=2500)
+parser.add_argument("--randens", help="density of random points /deg2 to use",default=2500,type=float)
 parser.add_argument("--dec0", help="dec center",default=0)
 parser.add_argument("--dithra", help="dither step in the ra direction",default=0.025)
 parser.add_argument("--dithdec", help="dither step in the dec direction",default=0.05)
