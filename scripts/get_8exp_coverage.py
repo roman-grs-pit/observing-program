@@ -134,16 +134,17 @@ args = parser.parse_args()
 ra0 = args.ra0
 dec0 = args.dec0
 
-decm = dec0-0.6
-decx = dec0+0.6
-ram = ra0-0.4
-rax = ra0+0.4
+decm = dec0-0.4
+decx = dec0+0.4
+ram = ra0-0.6
+rax = ra0+0.6
 randens = args.randens
 fullsky_area = 360.*360/np.pi
 nran = int(randens*fullsky_area)
 acosl = np.random.rand(nran)*2-1 #distribute randomly in arccos
 ral = np.random.rand(nran)*360-180
 decl = np.arccos(acosl)
+print(np.min(decl),np.max(decl))
 
 ral_tot,decl_tot = cutran(ram,rax,decm,decx)#mkgrid(0,0,1,100)
 print(str(len(ral_tot))+' random points will be used')
