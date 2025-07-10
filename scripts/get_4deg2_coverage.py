@@ -124,8 +124,8 @@ parser.add_argument("--ramin", help="ra center",default=9,type=float)
 parser.add_argument("--ramax", help="ra center",default=11,type=float)
 parser.add_argument("--decmin", help="dec center",default=-1,type=float)
 parser.add_argument("--decmax", help="dec center",default=1,type=float)
-parser.add_argument("--ra0", help="ra center for first chunk",default=9.25,type=float)
-parser.add_argument("--dec0", help="ra center",default=-0.75,type=float)
+parser.add_argument("--ra0", help="ra center for first chunk",default=9.15,type=float)
+parser.add_argument("--dec0", help="ra center",default=-0.85,type=float)
 
 parser.add_argument("--randens", help="density of random points /deg2 to use",default=2500,type=float)
 
@@ -139,7 +139,7 @@ args = parser.parse_args()
 ra0 = args.ra0
 dec0 = args.dec0
 decstep = .42
-rastep = .66
+rastep = .72
 dithstep = 0.125*.2,0.125*.4 #ra,dec step for dither
 ndith = 2
 decpa = 0.087 #how much offset there is in declination between 0 and 180 pa
