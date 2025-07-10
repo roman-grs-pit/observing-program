@@ -273,7 +273,7 @@ plt.scatter(np.array(ral_tot)[sel],np.array(decl_tot)[sel],c=nobs[sel],s=.1,cmap
 plt.colorbar(ticks=np.arange(1,9 ),label='# of obs.')
 #plt.colorbar(levels=[0,1,2,3,4])
 plt.xlim(ram, rax)
-plt.ylim(decm,decx)
+plt.ylim(decm-.2,decx+.2)
 plt.xlabel('ra (degrees)')
 plt.ylabel('dec (degrees)')
 plt.title(r'footprint 4 rolls/2 dithers')
