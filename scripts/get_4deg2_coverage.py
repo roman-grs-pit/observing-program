@@ -196,6 +196,7 @@ maxwav = 1.9
 nobs = np.zeros(len(ral_tot))
 dets = np.arange(1,19)
 for PA,decoff,raoff in zip(pal,decoffl,raoffl):
+    print('at roll '+str(PA))
     for raind in range(0,nra):
         print('at raind '+str(raind))
         for decind in range(0,ndec):
