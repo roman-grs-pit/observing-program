@@ -141,10 +141,16 @@ rax = ra0+0.6
 randens = args.randens
 fullsky_area = 360.*360/np.pi
 nran = int(randens*fullsky_area)
-acosl = np.random.rand(nran)*2-1 #distribute randomly in arccos
+cosl = np.random.rand(nran)*2-1 #distribute randomly in arccos
+cosmin = np.cos(np.pi/180*(decm+90))
+cosmax = np.cos(np.pi/180*(decx+90)
+selcos = cosl > cosmin
+selcos &= cosl < cosmax
 ral = np.random.rand(nran)*360-180
-decl = np.arccos(acosl)*180/np.pi-90
-print(np.min(decl),np.max(decl))
+ral = ral[selcos]
+decl = np.arccos(cosl[selcos])*180/np.pi-90
+
+print('made all sky randoms and cut to declination range')
 
 ral_tot,decl_tot = cutran(ram,rax,decm,decx)#mkgrid(0,0,1,100)
 print(str(len(ral_tot))+' random points will be used')
