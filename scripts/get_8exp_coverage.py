@@ -120,13 +120,13 @@ def plot_dets_rsiaf(att_in,ax):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--ra0", help="ra center",default=2)
+parser.add_argument("--ra0", help="ra center",default=2,type=float)
 parser.add_argument("--randens", help="density of random points /deg2 to use",default=2500,type=float)
-parser.add_argument("--dec0", help="dec center",default=0)
-parser.add_argument("--dithra", help="dither step in the ra direction",default=0.025)
-parser.add_argument("--dithdec", help="dither step in the dec direction",default=0.05)
-parser.add_argument("--pa_step_dec", help="step in the dec direction to take when flipping ~180deg",default=0.087)
-parser.add_argument("--pa_step_ra", help="step in the ra direction with each pa angle",default=0)
+parser.add_argument("--dec0", help="dec center",default=0,type=float)
+parser.add_argument("--dithra", help="dither step in the ra direction",default=0.025,type=float)
+parser.add_argument("--dithdec", help="dither step in the dec direction",default=0.05,type=float)
+parser.add_argument("--pa_step_dec", help="step in the dec direction to take when flipping ~180deg",default=0.087,type=float)
+parser.add_argument("--pa_step_ra", help="step in the ra direction with each pa angle",default=0,type=float)
 
 
 args = parser.parse_args()
