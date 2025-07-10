@@ -143,7 +143,7 @@ fullsky_area = 360.*360/np.pi
 nran = int(randens*fullsky_area)
 acosl = np.random.rand(nran)*2-1 #distribute randomly in arccos
 ral = np.random.rand(nran)*360-180
-decl = np.arccos(acosl)
+decl = np.arccos(acosl)*180/np.pi-90
 print(np.min(decl),np.max(decl))
 
 ral_tot,decl_tot = cutran(ram,rax,decm,decx)#mkgrid(0,0,1,100)
