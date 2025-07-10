@@ -121,7 +121,7 @@ def plot_dets_rsiaf(att_in,ax):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--ramin", help="ra center",default=9,type=float)
-arser.add_argument("--ramax", help="ra center",default=11,type=float)
+parser.add_argument("--ramax", help="ra center",default=11,type=float)
 parser.add_argument("--decmin", help="dec center",default=-1,type=float)
 parser.add_argument("--decmax", help="dec center",default=1,type=float)
 parser.add_argument("--ra0", help="ra center for first chunk",default=9.25,type=float)
