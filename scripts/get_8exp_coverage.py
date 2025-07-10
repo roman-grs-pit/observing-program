@@ -135,7 +135,7 @@ ra0 = args.ra0
 dec0 = args.dec0
 
 decm = dec0-0.6
-decx = deco+0.6
+decx = dec0+0.6
 ram = ra0-0.4
 rax = ra0+0.4
 randens = args.randens
