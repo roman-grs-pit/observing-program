@@ -212,8 +212,8 @@ for PA,decoff,raoff in zip(pal,decoffl,raoffl):
     for raind in range(0,nra):
         print('at raind '+str(raind))
         deccoloff = 0
-        if raind == 1:
-            deccoloff = -0.1
+        #if raind == 1:
+        #    deccoloff = -0.1
         for decind in range(0,ndec):
             print('at decind '+str(decind))
             for dith in range(0,ndith):
