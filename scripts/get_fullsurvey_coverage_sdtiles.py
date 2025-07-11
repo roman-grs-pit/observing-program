@@ -91,7 +91,7 @@ def get_pixl(coords,detfoot,detnum,PA):
     return pixels
 from time import time
 
-in_array = np.ones((3,len(ral_tot)))*-9999
+
 def get_pixl_siaf(ra,dec,att_in,detnum):
     t0 = time()
     rap = f'WFI{detnum :02}_FULL'
@@ -177,6 +177,7 @@ print('made all sky randoms and cut to declination range')
 ral_tot,decl_tot = cutran(ram,rax,decm,decx)#mkgrid(0,0,1,100)
 print(str(len(ral_tot))+' random points will be used')
 ran_indices = np.arange(len(ral_tot)) 
+in_array = np.ones((3,len(ral_tot)))*-9999
 coords = SkyCoord(ra=ral_tot*u.degree,dec=decl_tot*u.degree, frame='icrs')
 
 
