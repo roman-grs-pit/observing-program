@@ -124,6 +124,9 @@ parser.add_argument("--ramin", help="ra center",default=9,type=float)
 parser.add_argument("--ramax", help="ra center",default=11,type=float)
 parser.add_argument("--decmin", help="dec center",default=-1,type=float)
 parser.add_argument("--decmax", help="dec center",default=1,type=float)
+parser.add_argument("--wavmin", help="set minimum wavelength, if not None",default=None)
+parser.add_argument("--wavmax", help="set maximum wavelength, if not None",default=None)
+
 parser.add_argument("--ra0", help="ra center for first chunk",default=9.15,type=float)
 parser.add_argument("--dec0", help="ra center",default=-0.85,type=float)
 
@@ -176,10 +179,6 @@ dithstep = args.dithra,args.dithdec
 ndith = 2
 decpa = args.pa_step_dec
 rapa = args.pa_step_ra
-outdir = out_root+'4deg2_5x3/ra'+str(ra0)+'dec'+str(dec0)+'_dithra'+str(args.dithra)+'dec'+str(args.dithdec)+'_para'+str(args.pa_step_ra)+str(args.pa_step_dec)+'/'
-print('results will be written to '+outdir)
-if not os.path.exists(outdir):
-    os.makedirs(outdir)
 decoffl = [decpa,decpa,-decpa,-decpa]
 raoffl = [rapa,rapa/3,-rapa/3,-rapa]
 pa_off = 60 #this undoes the rotation applied by default to a pa=0 
@@ -193,6 +192,19 @@ raoff = raoffl[0]
 
 minwav = 1
 maxwav = 1.9
+wavstr = ''
+if args.wavmin is not None:
+    minwav = float(args.wavmin)
+    wavstr += 'lam'+str(round(minwav,3))
+if args.wavmax is not None:
+    maxmwav = args.wavmax
+    wavstr += str(round(maxwav,3))
+outdir = out_root+'4deg2_5x3/ra'+str(ra0)+'dec'+str(dec0)+'_dithra'+str(args.dithra)+'dec'+str(args.dithdec)+'_para'+str(args.pa_step_ra)+str(args.pa_step_dec)+wavstr+'/'
+print('results will be written to '+outdir)
+if not os.path.exists(outdir):
+    os.makedirs(outdir)
+
+
 nobs = np.zeros(len(ral_tot))
 dets = np.arange(1,19)
 for PA,decoff,raoff in zip(pal,decoffl,raoffl):
