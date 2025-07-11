@@ -163,7 +163,7 @@ print('made all sky randoms and cut to declination range')
 
 ral_tot,decl_tot = cutran(ram,rax,decm,decx)#mkgrid(0,0,1,100)
 print(str(len(ral_tot))+' random points will be used')
-ran_indices = np.arrange(len(ral_tot)) 
+ran_indices = np.arange(len(ral_tot)) 
 coords = SkyCoord(ra=ral_tot*u.degree,dec=decl_tot*u.degree, frame='icrs')
 
 
