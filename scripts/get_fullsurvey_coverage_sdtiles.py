@@ -94,11 +94,17 @@ def get_pixl_siaf(ra,dec,att_in,detnum):
     rap = f'WFI{detnum :02}_FULL'
     wfi = rsiaf[rap]
     wfi.set_attitude_matrix(att_in)
-    pixels = wfi.sky_to_sci(ra,dec)
     cen_ra,cen_dec = wfi.idl_to_sky(0, 0)
     ddec = abs(dec-cen_dec)
-    sel = ddec > 0.1
-    pixels[0][sel] *= -999
+    dra = abs(ra-cen_ra)
+    sel = ddec < 0.1
+    sel &= dra < 0.1/np.cos(np.min(dec)*np.pi/180)
+    pixels = np.ones((2,len(ra)))*-999
+    #pixels[0][sel] = -999
+
+    pixels_sel = wfi.sky_to_sci(ra[sel],dec[sel])
+    pixels[0][sel] = pixels_sel[0]
+    pixels[1][sel] = pixels_sel[1]
     return pixels
 
 def plot_dets_rsiaf(att_in,ax):
@@ -156,6 +162,7 @@ print('made all sky randoms and cut to declination range')
 
 ral_tot,decl_tot = cutran(ram,rax,decm,decx)#mkgrid(0,0,1,100)
 print(str(len(ral_tot))+' random points will be used')
+ran_indices = 
 coords = SkyCoord(ra=ral_tot*u.degree,dec=decl_tot*u.degree, frame='icrs')
 
 
