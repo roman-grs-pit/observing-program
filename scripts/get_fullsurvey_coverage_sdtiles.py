@@ -120,10 +120,6 @@ def plot_dets_rsiaf(att_in,ax):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--ramin", help="ra center",default=49,type=float)
-parser.add_argument("--ramax", help="ra center",default=51,type=float)
-parser.add_argument("--decmin", help="dec center",default=-11,type=float)
-parser.add_argument("--decmax", help="dec center",default=-9,type=float)
 parser.add_argument("--wficen", help="if y, positions are detector center",default='y')
 parser.add_argument("--wavmin", help="set minimum wavelength, if not None",default=None)
 parser.add_argument("--wavmax", help="set maximum wavelength, if not None",default=None)
