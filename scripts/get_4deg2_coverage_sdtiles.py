@@ -124,6 +124,7 @@ parser.add_argument("--ramin", help="ra center",default=49,type=float)
 parser.add_argument("--ramax", help="ra center",default=51,type=float)
 parser.add_argument("--decmin", help="dec center",default=-11,type=float)
 parser.add_argument("--decmax", help="dec center",default=-9,type=float)
+parser.add_argument("--wficen", help="if y, positions are detector center",default='y')
 parser.add_argument("--wavmin", help="set minimum wavelength, if not None",default=None)
 parser.add_argument("--wavmax", help="set maximum wavelength, if not None",default=None)
 
@@ -175,7 +176,10 @@ if args.wavmin is not None:
 if args.wavmax is not None:
     maxwav = float(args.wavmax)
     wavstr += str(round(maxwav,3))
-outdir = out_root+'4deg2_sd/ramin'+str(ram)+'decmin'+str(decm)+wavstr+'/'
+wfistr =''
+if args.wficen != 'y':
+    wfistr = 'notwficen'    
+outdir = out_root+'4deg2_sd/ramin'+str(ram)+'decmin'+str(decm)+wavstr+wfistr+'/'
 print('results will be written to '+outdir)
 if not os.path.exists(outdir):
     os.makedirs(outdir)
@@ -201,7 +205,10 @@ for tl in range(0,len(tiles[0][gtiles&selreg])):
     ra0 = tiles[racol][gtiles&selreg][tl]
     dec0 = tiles[deccol][gtiles&selreg][tl]
     pa = tiles[pacol][gtiles&selreg][tl]
-    att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0, dec0, pa)
+    if args.wficen == 'y':
+        att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0, dec0, pa)
+    else:
+        att = attitude(0, 0, ra0, dec0, pa)
     for det in dets:
         #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
         pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
