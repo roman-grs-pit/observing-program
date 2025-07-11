@@ -186,10 +186,10 @@ gtiles = tiles[4] == 9
 racol = 2
 deccol = 1
 pacol = 3
-selreg = tiles[racol] > 49
-selreg &= tiles[racol] < 51
-selreg &= tiles[deccol] > -11
-selreg &= tiles[deccol] < -9
+selreg = tiles[racol] > args.ramin-0.4/np.cos(args.decmin*np.pi/180)
+selreg &= tiles[racol] < args.ramax+0.4/np.cos(args.decmin*np.pi/180)
+selreg &= tiles[deccol] > args.decmin-0.2
+selreg &= tiles[deccol] < args.decmax+0.2
 print(len(tiles[0][gtiles&selreg]))
 fig = plt.figure()
 ax = fig.add_subplot(111)
