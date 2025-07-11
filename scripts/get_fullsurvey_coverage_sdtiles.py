@@ -90,6 +90,8 @@ def get_pixl(coords,detfoot,detnum,PA):
     pixels = w.world_to_pixel(coords)
     return pixels
 from time import time
+
+in_array = np.ones((3,len(ra)))*-9999
 def get_pixl_siaf(ra,dec,att_in,detnum):
     t0 = time()
     rap = f'WFI{detnum :02}_FULL'
@@ -105,7 +107,7 @@ def get_pixl_siaf(ra,dec,att_in,detnum):
     sel &= dra < 0.1/dfac
     t2 = time()
     print(str(t2-t1)+' masked array')
-    pixels = np.ones((3,len(ra)))*-999
+    pixels = np.copy(in_array)
     #pixels[0][sel] = -999
     t3 = time()
     print(str(t3-t2)+' initialize array')
