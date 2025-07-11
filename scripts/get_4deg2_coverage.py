@@ -197,7 +197,7 @@ if args.wavmin is not None:
     minwav = float(args.wavmin)
     wavstr += 'lam'+str(round(minwav,3))
 if args.wavmax is not None:
-    maxwav = args.wavmax
+    maxwav = float(args.wavmax)
     wavstr += str(round(maxwav,3))
 outdir = out_root+'4deg2_5x3/ra'+str(ra0)+'dec'+str(dec0)+'_dithra'+str(args.dithra)+'dec'+str(args.dithdec)+'_para'+str(args.pa_step_ra)+str(args.pa_step_dec)+wavstr+'/'
 print('results will be written to '+outdir)
