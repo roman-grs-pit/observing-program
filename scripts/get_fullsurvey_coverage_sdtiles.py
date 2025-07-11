@@ -97,21 +97,26 @@ def get_pixl_siaf(ra,dec,att_in,detnum):
     wfi.set_attitude_matrix(att_in)
     cen_ra,cen_dec = wfi.idl_to_sky(0, 0)
     t1 = time()
-    print(str(t1-t0)+ 'setup')
+    #print(str(t1-t0)+ 'setup')
     ddec = abs(dec-cen_dec)
     dra = abs(ra-cen_ra)
     sel = ddec < 0.1
-    sel &= dra < 0.1/np.cos(np.min(dec)*np.pi/180)
-    pixels = np.ones((3,len(ra)))*-999
-    #pixels[0][sel] = -999
+    dfac = np.cos(np.min(dec)*np.pi/180)
+    sel &= dra < 0.1/dfac
     t2 = time()
     print(str(t2-t1)+' masked array')
+    pixels = np.ones((3,len(ra)))*-999
+    #pixels[0][sel] = -999
+    t3 = time()
+    print(str(t3-t2)+' initialize array')
+    
+    
     pixels_sel = wfi.sky_to_sci(ra[sel],dec[sel])
     pixels[0][sel] = pixels_sel[0]
     pixels[1][sel] = pixels_sel[1]
     pixels[2] = sel
-    t3 = time()
-    print(str(t3-t2)+' final result')
+    t4 = time()
+    print(str(t4-t3)+' final result')
     return pixels
 
 def plot_dets_rsiaf(att_in,ax):
