@@ -212,6 +212,7 @@ for i in range(0,len(tiles[0][gtiles&selreg])):
             if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
                 test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
             nobs[i] += test
+    print(str(i)+' completed')
 
 tout = Table()
 tout['RA'] = ral_tot
