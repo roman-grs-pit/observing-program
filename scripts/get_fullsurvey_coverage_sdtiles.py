@@ -91,7 +91,7 @@ def get_pixl(coords,detfoot,detnum,PA):
     return pixels
 from time import time
 
-in_array = np.ones((3,len(ra)))*-9999
+in_array = np.ones((3,len(ral_tot)))*-9999
 def get_pixl_siaf(ra,dec,att_in,detnum):
     t0 = time()
     rap = f'WFI{detnum :02}_FULL'
