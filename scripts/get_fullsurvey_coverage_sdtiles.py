@@ -99,12 +99,13 @@ def get_pixl_siaf(ra,dec,att_in,detnum):
     dra = abs(ra-cen_ra)
     sel = ddec < 0.1
     sel &= dra < 0.1/np.cos(np.min(dec)*np.pi/180)
-    pixels = np.ones((2,len(ra)))*-999
+    pixels = np.ones((3,len(ra)))*-999
     #pixels[0][sel] = -999
 
     pixels_sel = wfi.sky_to_sci(ra[sel],dec[sel])
     pixels[0][sel] = pixels_sel[0]
     pixels[1][sel] = pixels_sel[1]
+    pixels[2] = sel
     return pixels
 
 def plot_dets_rsiaf(att_in,ax):
@@ -162,7 +163,7 @@ print('made all sky randoms and cut to declination range')
 
 ral_tot,decl_tot = cutran(ram,rax,decm,decx)#mkgrid(0,0,1,100)
 print(str(len(ral_tot))+' random points will be used')
-#ran_indices = 
+ran_indices = np.arrange(len(ral_tot)) 
 coords = SkyCoord(ra=ral_tot*u.degree,dec=decl_tot*u.degree, frame='icrs')
 
 
@@ -203,6 +204,7 @@ ax = fig.add_subplot(111)
 
 nobs = np.zeros(len(ral_tot))
 dets = np.arange(1,19)
+rand_indx = []
 for tl in range(0,len(tiles[0][gtiles])):
     ra0 = tiles[racol][gtiles][tl]
     dec0 = tiles[deccol][gtiles][tl]
@@ -214,13 +216,16 @@ for tl in range(0,len(tiles[0][gtiles])):
     for det in dets:
         #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
         pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
-        for i in range(0,len(pixels[0])):
-            xpix = pixels[0][i]
-            ypix = pixels[1][i]
+        selp = pixels[2]
+        for i in range(0,len(pixels[0][selp])):
+            xpix = pixels[0][selp][i]
+            ypix = pixels[1][selp][i]
             test = 0
             if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
                 test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
-            nobs[i] += test
+            idx = ran_indices[selp][i]
+            rand_indx.append(idx)
+            #nobs[i] += test
     print(str(tl)+' completed')
 
 tout = Table()
