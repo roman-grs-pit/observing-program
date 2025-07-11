@@ -100,11 +100,15 @@ def get_pixl_siaf(ra,dec,att_in,detnum):
     cen_ra,cen_dec = wfi.idl_to_sky(0, 0)
     t1 = time()
     #print(str(t1-t0)+ 'setup')
-    ddec = abs(dec-cen_dec)
-    dra = abs(ra-cen_ra)
-    sel = ddec < 0.1
+    #ddec = abs(dec-cen_dec)
+    #dra = abs(ra-cen_ra)
+    ddec = dec-cen_dec
+    dra = ra-cen_ra
+    sel = ddec > -0.1#ddec < 0.1
+    sel &= ddec < 0.1
     dfac = np.cos(np.min(dec)*np.pi/180)
     sel &= dra < 0.1/dfac
+    sel &= dra > -0.1/dfac
     t2 = time()
     print(str(t2-t1)+' masked array')
     pixels = np.copy(in_array)
