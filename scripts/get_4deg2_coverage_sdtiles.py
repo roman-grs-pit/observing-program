@@ -197,10 +197,10 @@ ax = fig.add_subplot(111)
 
 nobs = np.zeros(len(ral_tot))
 dets = np.arange(1,19)
-for i in range(0,len(tiles[0][gtiles&selreg])):
-    ra0 = tiles[racol][gtiles&selreg][i]
-    dec0 = tiles[deccol][gtiles&selreg][i]
-    pa = tiles[pacol][gtiles&selreg][i]
+for tl in range(0,len(tiles[0][gtiles&selreg])):
+    ra0 = tiles[racol][gtiles&selreg][tl]
+    dec0 = tiles[deccol][gtiles&selreg][tl]
+    pa = tiles[pacol][gtiles&selreg][tl]
     att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0, dec0, pa)
     for det in dets:
         #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
@@ -212,7 +212,7 @@ for i in range(0,len(tiles[0][gtiles&selreg])):
             if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
                 test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
             nobs[i] += test
-    print(str(i)+' completed')
+    print(str(tl)+' completed')
 
 tout = Table()
 tout['RA'] = ral_tot
