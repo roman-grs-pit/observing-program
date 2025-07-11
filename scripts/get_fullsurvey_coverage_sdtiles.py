@@ -216,7 +216,8 @@ for tl in range(0,len(tiles[0][gtiles])):
     for det in dets:
         #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
         pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
-        selp = pixels[2]
+        selp = pixels[2].astype(bool)
+        print(np.sum(selp),len(selp))
         for i in range(0,len(pixels[0][selp])):
             xpix = pixels[0][selp][i]
             ypix = pixels[1][selp][i]
