@@ -197,7 +197,7 @@ selreg = tiles[racol] > args.ramin-2*pad/np.cos(args.decmin*np.pi/180)
 selreg &= tiles[racol] < args.ramax+2*pad/np.cos(args.decmin*np.pi/180)
 selreg &= tiles[deccol] > args.decmin-pad
 selreg &= tiles[deccol] < args.decmax+pad
-print(len(tiles[0][gtiles&selreg]))
+print(len(tiles[gtiles&selreg]))
 fig = plt.figure()
 ax = fig.add_subplot(111)
 #for pa,decoff,raoff in zip(pal,decoffl,raoffl):
