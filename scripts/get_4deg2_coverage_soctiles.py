@@ -184,7 +184,7 @@ print('results will be written to '+outdir)
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
-tiles = np.loadtxt(os.environ['github_dir']+'observing-program/data/tillingfromJavi_994_fixed_workaround.sim.ecsv').transpose()
+tiles = Table.read(os.environ['github_dir']+'observing-program/data/tillingfromJavi_994_fixed_workaround.sim.ecsv').transpose()
 gtiles = tiles['BANDPASS'] == 'GRISM'
  
 racol = 'RA'
