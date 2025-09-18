@@ -199,10 +199,10 @@ ral = np.random.rand(nran)*360-180
 ral = ral
 decl = np.arccos(-1*cosl)*180/np.pi-90
 
-print('made all sky randoms and cut to declination range')
+logger.info('made all sky randoms and cut to declination range')
 
 ral_tot,decl_tot = cutran(ram,rax,decm,decx)#mkgrid(0,0,1,100)
-print(str(len(ral_tot))+' random points will be used')
+logger.info(str(len(ral_tot))+' random points will be used')
 ran_indices = np.arange(len(ral_tot)) 
 in_array = np.ones((3,len(ral_tot)))*-9999
 coords = SkyCoord(ra=ral_tot*u.degree,dec=decl_tot*u.degree, frame='icrs')
@@ -225,7 +225,7 @@ wfistr =''
 if args.wficen != 'y':
     wfistr = 'notwficen'    
 outdir = out_root+'fullsurvey_sd/ramin'+str(ram)+'decmin'+str(decm)+wavstr+wfistr+'/'
-print('results will be written to '+outdir)
+logger.info('results will be written to '+outdir)
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
@@ -255,7 +255,7 @@ def get_idx_tl(tl):
         att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0, dec0, pa)
     else:
         att = attitude(0, 0, ra0, dec0, pa)
-    idx_tl = []
+    idx = []
     for det in dets:
         #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
         #pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
@@ -273,8 +273,8 @@ def get_idx_tl(tl):
             if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
                 test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
             idx_det = ran_indices[selp][i]
-            idx_tl.append(idx_det)
-    idx = np.concatenate(idx_tl)
+            idx.append(idx_det)
+        logger.info('completed detector '+str(det)+' on obs '+str(tl))
     logger.info('completed '+str(tl))
     return idx
 
