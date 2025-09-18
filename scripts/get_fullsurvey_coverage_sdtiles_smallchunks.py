@@ -226,8 +226,8 @@ ax = fig.add_subplot(111)
 
 dets = np.arange(1,19)
 rand_indx = []
-ral_all = []
-decl_all = []
+ra_all = []
+dec_all = []
 cnts_all = []
 tls = tiles[0][gtiles]
 tottl = len(tls)
