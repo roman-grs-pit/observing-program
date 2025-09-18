@@ -242,8 +242,8 @@ for tl in range(0,len(tiles[0][gtiles])):
         for i in range(0,len(pixel_sel[0])):
             #xpix = pixels[0][selp][i]
             #ypix = pixels[1][selp][i]
-            xpix = pixels[0][i]
-            ypix = pixels[1][i]
+            xpix = pixel_sel[0][i]
+            ypix = pixel_sel[1][i]
 
             test = 0
             if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
