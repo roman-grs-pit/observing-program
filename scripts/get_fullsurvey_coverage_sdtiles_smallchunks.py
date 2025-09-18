@@ -174,6 +174,7 @@ parser.add_argument("--wavmax", help="set maximum wavelength, if not None",defau
 
 parser.add_argument("--randens", help="density of random points /deg2 to use",default=25,type=float)
 parser.add_argument("--Nchunk", help="how many times to repeat",default=10,type=float)
+parser.add_argument("--set", help="which set of chunks?",default=0,type=float)
 
 
 
@@ -233,8 +234,8 @@ indx_all = []
 tls = tiles[0][gtiles]
 tottl = len(tls)
 
-
-for chunk in range(0,args.Nchunk):
+min_chunk = args.set*args.Nchunk
+for chunk in range(int(min_chunk),args.Nchunk):
     rand_indx = []
 
 
@@ -333,7 +334,7 @@ tout['RA'] = ra_all
 tout['DEC'] = dec_all
 tout['ID'] = indx_all
 tout['NOBS'] = np.array(cnts_all,dtype=int)
-tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'grid.ecsv',overwrite=True)
+tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'_chunkranset'+str(set)+'.ecsv',overwrite=True)
 
 #make nobs figure
 plt.clf()
