@@ -107,24 +107,24 @@ def get_pixl_siaf(ra,dec,att_in,detnum):
     dra = ra-cen_ra
     sel = ddec > -0.1#ddec < 0.1
     sel &= ddec < 0.1
-    dfac = 0.5#np.cos(np.min(dec)*np.pi/180)
+    dfac = np.cos(np.min(dec)*np.pi/180)
     sel &= dra < 0.1/dfac
     sel &= dra > -0.1/dfac
     t2 = time()
     print(str(t2-t1)+' masked array')
-    pixels = np.copy(in_array)
+    #pixels = np.copy(in_array)
     #pixels[0][sel] = -999
     t3 = time()
-    print(str(t3-t2)+' initialize array')
+    #print(str(t3-t2)+' initialize array')
     
     
     pixels_sel = wfi.sky_to_sci(ra[sel],dec[sel])
-    pixels[0][sel] = pixels_sel[0]
-    pixels[1][sel] = pixels_sel[1]
-    pixels[2] = sel
+    #pixels[0][sel] = pixels_sel[0]
+    #pixels[1][sel] = pixels_sel[1]
+    #pixels[2] = sel
     t4 = time()
     print(str(t4-t3)+' final result')
-    return pixels
+    return pixels_sel,sel#pixels
 
 def plot_dets_rsiaf(att_in,ax):
     #roman_apertures = [f'WFI{i + 1:02}_FULL' ]
@@ -234,12 +234,17 @@ for tl in range(0,len(tiles[0][gtiles])):
         att = attitude(0, 0, ra0, dec0, pa)
     for det in dets:
         #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
-        pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
-        selp = pixels[2].astype(bool)
+        #pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
+        pixel_sel,sel = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
+        selp = sel.astype(bool)#pixels[2].astype(bool)
         print(np.sum(selp),len(selp))
-        for i in range(0,len(pixels[0][selp])):
-            xpix = pixels[0][selp][i]
-            ypix = pixels[1][selp][i]
+        #for i in range(0,len(pixels[0][selp])):
+        for i in range(0,len(pixel_sel[0])):
+            #xpix = pixels[0][selp][i]
+            #ypix = pixels[1][selp][i]
+            xpix = pixels[0][i]
+            ypix = pixels[1][i]
+
             test = 0
             if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
                 test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
