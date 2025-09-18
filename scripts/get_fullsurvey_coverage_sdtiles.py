@@ -107,7 +107,7 @@ def get_pixl_siaf(ra,dec,att_in,detnum):
     dra = ra-cen_ra
     sel = ddec > -0.1#ddec < 0.1
     sel &= ddec < 0.1
-    dfac = np.cos(np.min(dec)*np.pi/180)
+    dfac = 0.5#np.cos(np.min(dec)*np.pi/180)
     sel &= dra < 0.1/dfac
     sel &= dra > -0.1/dfac
     t2 = time()
