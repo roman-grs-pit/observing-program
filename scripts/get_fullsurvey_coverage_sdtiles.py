@@ -12,6 +12,28 @@ from astropy.coordinates import SkyCoord
 import importlib
 import argparse
 
+mport logging
+
+# create logger
+logname = 'Roman_coverage'
+logger = logging.getLogger(logname)
+logger.setLevel(logging.INFO)
+
+# create console handler and set level to debug
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+
+# create formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# add formatter to ch
+ch.setFormatter(formatter)
+
+# add ch to logger
+logger.addHandler(ch)
+
+
+
 #on NERSC; should change this so that it is already sourced by environment script
 sys.path.append('/global/common/software/m4943/grizli0/observing-program/py/')
 sys.path.append('/global/common/software/m4943/grizli0/grism_sim/py/')
@@ -252,11 +274,12 @@ def get_idx_tl(tl):
                 test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
             idx_det = ran_indices[selp][i]
             idx_tl.append(idx_det)
-        idx = np.concatenate(idx_tl)
+    idx = np.concatenate(idx_tl)
+    logger.info('completed '+str(tl))
     return idx
 
 tls = tiles[0][gtiles]
-par = y
+par = 'y'
 if par == 'n':
     for tl in range(0,len(tls)):
         idx = get_idx_tl(tl)
@@ -277,7 +300,7 @@ rans,cnts = np.unique(rand_indx,return_counts=True)
 selobs = np.isin(ran_indices,rans)
 
 if np.array_equal(ran_indices[selobs],rans):
-    print('input/final ids are matched in order')
+    logger.info('input/final ids are matched in order')
 else:
     sys.exit('ids are not matched')
 
