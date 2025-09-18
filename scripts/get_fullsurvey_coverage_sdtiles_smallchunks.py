@@ -225,16 +225,17 @@ ax = fig.add_subplot(111)
 #for pa,decoff,raoff in zip(pal,decoffl,raoffl):
 
 dets = np.arange(1,19)
-rand_indx = []
+
 ra_all = []
 dec_all = []
 cnts_all = []
+indx_all = []
 tls = tiles[0][gtiles]
 tottl = len(tls)
 
 
 for chunk in range(0,args.Nchunk):
-
+    rand_indx = []
 
 
     #selcos = cosl > cosmin
@@ -317,17 +318,20 @@ for chunk in range(0,args.Nchunk):
     ra_all.append(racut)
     dec_all.append(deccut)
     cnts_all.append(cnts)
+    indx_all.append(rans)
 
     
 ra_all = np.concatenate(ra_all)
 dec_all = np.concatenate(dec_all)
 cnts_all = np.concatenate(cnts_all)
+indx_all = np.concatenate(indx_all)
 
 
 
 tout = Table()
 tout['RA'] = ra_all
 tout['DEC'] = dec_all
+tout['ID'] = indx_all
 tout['NOBS'] = np.array(cnts_all,dtype=int)
 tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'grid.ecsv',overwrite=True)
 
