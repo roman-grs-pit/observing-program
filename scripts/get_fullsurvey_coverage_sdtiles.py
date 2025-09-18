@@ -321,7 +321,7 @@ tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'grid.ecsv',overwrite=True)
 plt.clf()
 cmap = plt.get_cmap('jet', 8)
 #sel = nobs > 0
-plt.scatter(np.array(ral_tot)[selobs],np.array(decl_tot)[selobs],c=cnt,s=.1,cmap=cmap,vmin=0.5,vmax=8.5)
+plt.scatter(np.array(ral_tot)[selobs],np.array(decl_tot)[selobs],c=cnts,s=.1,cmap=cmap,vmin=0.5,vmax=8.5)
 plt.colorbar(ticks=np.arange(1,9 ),label='# of obs.')
 #plt.colorbar(levels=[0,1,2,3,4])
 plt.xlim(ram, rax)
