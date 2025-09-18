@@ -12,7 +12,7 @@ from astropy.coordinates import SkyCoord
 import importlib
 import argparse
 
-mport logging
+import logging
 
 # create logger
 logname = 'Roman_coverage'
