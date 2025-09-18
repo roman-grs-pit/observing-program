@@ -133,7 +133,7 @@ def get_pixl_siaf(ra,dec,att_in,detnum):
     sel &= dra < 0.1/dfac
     sel &= dra > -0.1/dfac
     t2 = time()
-    print(str(t2-t1)+' masked array')
+    #print(str(t2-t1)+' masked array')
     #pixels = np.copy(in_array)
     #pixels[0][sel] = -999
     t3 = time()
@@ -145,7 +145,7 @@ def get_pixl_siaf(ra,dec,att_in,detnum):
     #pixels[1][sel] = pixels_sel[1]
     #pixels[2] = sel
     t4 = time()
-    print(str(t4-t3)+' final result')
+    #print(str(t4-t3)+' final result')
     return pixels_sel,sel#pixels
 
 def plot_dets_rsiaf(att_in,ax):
@@ -261,7 +261,7 @@ def get_idx_tl(tl):
         #pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
         pixel_sel,sel = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
         selp = sel.astype(bool)#pixels[2].astype(bool)
-        print(np.sum(selp),len(selp))
+        #print(np.sum(selp),len(selp))
         #for i in range(0,len(pixels[0][selp])):
         for i in range(0,len(pixel_sel[0])):
             #xpix = pixels[0][selp][i]
@@ -274,7 +274,7 @@ def get_idx_tl(tl):
                 test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
             idx_det = ran_indices[selp][i]
             idx.append(idx_det)
-        logger.info('completed detector '+str(det)+' on obs '+str(tl))
+        #logger.info('completed detector '+str(det)+' on obs '+str(tl))
     logger.info('completed '+str(tl))
     return idx
 
