@@ -247,7 +247,7 @@ nobs = np.zeros(len(ral_tot))
 dets = np.arange(1,19)
 rand_indx = []
 
-tottl = len(tl)
+
 def get_idx_tl(tl):
     ra0 = tiles[racol][gtiles][tl]
     dec0 = tiles[deccol][gtiles][tl]
@@ -280,6 +280,7 @@ def get_idx_tl(tl):
     return idx
 
 tls = tiles[0][gtiles]
+tottl = len(tls)
 par = 'y'
 if par == 'n':
     for tl in range(0,len(tls)):
