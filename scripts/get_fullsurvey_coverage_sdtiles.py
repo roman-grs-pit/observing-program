@@ -279,7 +279,7 @@ def get_idx_tl(tl):
     return idx
 
 tls = tiles[0][gtiles]
-par = 'y'
+par = 'n'
 if par == 'n':
     for tl in range(0,len(tls)):
         idx = get_idx_tl(tl)
