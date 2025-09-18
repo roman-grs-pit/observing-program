@@ -237,69 +237,69 @@ for chunk in range(0,args.Nchunk):
 
 
 
-	#selcos = cosl > cosmin
-	#selcos &= cosl < cosmax
-	cosl = np.random.rand(nran)*2*fracdec+cosmin#2-1 #distribute randomly in arccos
-	
-	ral = np.random.rand(nran)*360-180
-	ral = ral
-	decl = np.arccos(-1*cosl)*180/np.pi-90
-	
-	logger.info('made all sky randoms and cut to declination range')
-	
-	ral_tot,decl_tot = cutran(ram,rax,decm,decx)#mkgrid(0,0,1,100)
-	logger.info(str(len(ral_tot))+' random points will be used')
-	ran_indices = (np.arange(len(ral_tot))+ args.Nchunk*1e7).astype(int)
-	in_array = np.ones((3,len(ral_tot)))*-9999
-	coords = SkyCoord(ra=ral_tot*u.degree,dec=decl_tot*u.degree, frame='icrs')
-		
-	ral_tot = np.array(ral_tot)
-	decl_tot = np.array(decl_tot)
-	def get_idx_tl(tl):
-		ra0 = tiles[racol][gtiles][tl]
-		dec0 = tiles[deccol][gtiles][tl]
-		pa = tiles[pacol][gtiles][tl]
-		if args.wficen == 'y':
-			att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0, dec0, pa)
-		else:
-			att = attitude(0, 0, ra0, dec0, pa)
-		idx = []
-		for det in dets:
-			#pixels = get_pixl(coords,dfoot,det,PA-pa_off)
-			#pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
-			pixel_sel,sel = get_pixl_siaf(ral_tot,decl_tot,att,det)
-			selp = sel.astype(bool)#pixels[2].astype(bool)
-			#print(np.sum(selp),len(selp))
-			#for i in range(0,len(pixels[0][selp])):
-			for i in range(0,len(pixel_sel[0])):
-				#xpix = pixels[0][selp][i]
-				#ypix = pixels[1][selp][i]
-				xpix = pixel_sel[0][i]
-				ypix = pixel_sel[1][i]
-	
-				test = 0
-				if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
-					test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
-					if test == 1:
-						idx_det = ran_indices[selp][i]
-						idx.append(idx_det)
-			#logger.info('completed detector '+str(det)+' on obs '+str(tl))
-		#logger.info('completed '+str(tl)+' out of '+str(tottl))
-		return idx
-	
-	par = 'y'
-	if par == 'n':
-		for tl in range(0,len(tls)):
-			idx = get_idx_tl(tl)
-			rand_indx.append(idx)
-			print(str(tl)+' completed')
-	
-	if par == 'y':
-		from concurrent.futures import ProcessPoolExecutor
-		tl_idx = list(np.arange(len(tls)).astype(int))   
-		with ProcessPoolExecutor() as executor:
-			for idx in executor.map(get_idx_tl, tl_idx):
-				rand_indx.append(idx)
+    #selcos = cosl > cosmin
+    #selcos &= cosl < cosmax
+    cosl = np.random.rand(nran)*2*fracdec+cosmin#2-1 #distribute randomly in arccos
+    
+    ral = np.random.rand(nran)*360-180
+    ral = ral
+    decl = np.arccos(-1*cosl)*180/np.pi-90
+    
+    logger.info('made all sky randoms and cut to declination range')
+    
+    ral_tot,decl_tot = cutran(ram,rax,decm,decx)#mkgrid(0,0,1,100)
+    logger.info(str(len(ral_tot))+' random points will be used')
+    ran_indices = (np.arange(len(ral_tot))+ args.Nchunk*1e7).astype(int)
+    in_array = np.ones((3,len(ral_tot)))*-9999
+    coords = SkyCoord(ra=ral_tot*u.degree,dec=decl_tot*u.degree, frame='icrs')
+        
+    ral_tot = np.array(ral_tot)
+    decl_tot = np.array(decl_tot)
+    def get_idx_tl(tl):
+        ra0 = tiles[racol][gtiles][tl]
+        dec0 = tiles[deccol][gtiles][tl]
+        pa = tiles[pacol][gtiles][tl]
+        if args.wficen == 'y':
+            att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0, dec0, pa)
+        else:
+            att = attitude(0, 0, ra0, dec0, pa)
+        idx = []
+        for det in dets:
+            #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
+            #pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
+            pixel_sel,sel = get_pixl_siaf(ral_tot,decl_tot,att,det)
+            selp = sel.astype(bool)#pixels[2].astype(bool)
+            #print(np.sum(selp),len(selp))
+            #for i in range(0,len(pixels[0][selp])):
+            for i in range(0,len(pixel_sel[0])):
+                #xpix = pixels[0][selp][i]
+                #ypix = pixels[1][selp][i]
+                xpix = pixel_sel[0][i]
+                ypix = pixel_sel[1][i]
+    
+                test = 0
+                if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
+                    test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
+                    if test == 1:
+                        idx_det = ran_indices[selp][i]
+                        idx.append(idx_det)
+            #logger.info('completed detector '+str(det)+' on obs '+str(tl))
+        #logger.info('completed '+str(tl)+' out of '+str(tottl))
+        return idx
+    
+    par = 'y'
+    if par == 'n':
+        for tl in range(0,len(tls)):
+            idx = get_idx_tl(tl)
+            rand_indx.append(idx)
+            print(str(tl)+' completed')
+    
+    if par == 'y':
+        from concurrent.futures import ProcessPoolExecutor
+        tl_idx = list(np.arange(len(tls)).astype(int))   
+        with ProcessPoolExecutor() as executor:
+            for idx in executor.map(get_idx_tl, tl_idx):
+                rand_indx.append(idx)
 
     logger.info('completed chunk '+str(chunk))
     logger.info('length of list of random ids '+str(len(rand_indx)))
