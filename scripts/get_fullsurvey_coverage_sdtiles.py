@@ -247,7 +247,8 @@ nobs = np.zeros(len(ral_tot))
 dets = np.arange(1,19)
 rand_indx = []
 
-
+ral_tot = np.array(ral_tot)
+decl_tot = np.array(decl_tot)
 def get_idx_tl(tl):
     ra0 = tiles[racol][gtiles][tl]
     dec0 = tiles[deccol][gtiles][tl]
@@ -260,7 +261,7 @@ def get_idx_tl(tl):
     for det in dets:
         #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
         #pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
-        pixel_sel,sel = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
+        pixel_sel,sel = get_pixl_siaf(ral_tot,decl_tot,att,det)
         selp = sel.astype(bool)#pixels[2].astype(bool)
         #print(np.sum(selp),len(selp))
         #for i in range(0,len(pixels[0][selp])):
@@ -273,8 +274,9 @@ def get_idx_tl(tl):
             test = 0
             if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
                 test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
-            idx_det = ran_indices[selp][i]
-            idx.append(idx_det)
+                if test == 1:
+                    idx_det = ran_indices[selp][i]
+                    idx.append(idx_det)
         #logger.info('completed detector '+str(det)+' on obs '+str(tl))
     logger.info('completed '+str(tl)+' out of '+str(tottl))
     return idx
@@ -295,8 +297,9 @@ if par == 'y':
         for idx in executor.map(get_idx_tl, tl_idx):
             rand_indx.append(idx)
 
+logger.info('length of list of random ids '+str(len(rand_indx)))
 rand_indx = np.concatenate(rand_indx)
-
+logger.info('length of concatenated array of random ids '+str(len(rand_indx)))
 rans,cnts = np.unique(rand_indx,return_counts=True)
 
 selobs = np.isin(ran_indices,rans)
@@ -317,8 +320,8 @@ tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'grid.ecsv',overwrite=True)
 #make nobs figure
 plt.clf()
 cmap = plt.get_cmap('jet', 8)
-sel = nobs > 0
-plt.scatter(np.array(ral_tot)[sel],np.array(decl_tot)[sel],c=nobs[sel],s=.1,cmap=cmap,vmin=0.5,vmax=8.5)
+#sel = nobs > 0
+plt.scatter(np.array(ral_tot)[selobs],np.array(decl_tot)[selobs],c=cnt,s=.1,cmap=cmap,vmin=0.5,vmax=8.5)
 plt.colorbar(ticks=np.arange(1,9 ),label='# of obs.')
 #plt.colorbar(levels=[0,1,2,3,4])
 plt.xlim(ram, rax)
