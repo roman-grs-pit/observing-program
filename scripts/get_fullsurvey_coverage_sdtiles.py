@@ -224,7 +224,8 @@ ax = fig.add_subplot(111)
 nobs = np.zeros(len(ral_tot))
 dets = np.arange(1,19)
 rand_indx = []
-for tl in range(0,len(tiles[0][gtiles])):
+
+def get_idx_tl(tl):
     ra0 = tiles[racol][gtiles][tl]
     dec0 = tiles[deccol][gtiles][tl]
     pa = tiles[pacol][gtiles][tl]
@@ -232,6 +233,7 @@ for tl in range(0,len(tiles[0][gtiles])):
         att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0, dec0, pa)
     else:
         att = attitude(0, 0, ra0, dec0, pa)
+    idx_tl = []
     for det in dets:
         #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
         #pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
@@ -248,15 +250,43 @@ for tl in range(0,len(tiles[0][gtiles])):
             test = 0
             if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
                 test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
-            idx = ran_indices[selp][i]
+            idx_det = ran_indices[selp][i]
+            idx_tl.append(idx_det)
+        idx = np.concatenate(idx_tl)
+    return idx
+
+tls = tiles[0][gtiles]
+par = y
+if par == 'n':
+    for tl in range(0,len(tls)):
+        idx = get_idx_tl(tl)
+        rand_indx.append(idx)
+        print(str(tl)+' completed')
+
+if par == 'y':
+    from concurrent.futures import ProcessPoolExecutor
+    tl_idx = list(np.arange(len(tls)).astype(int))   
+    with ProcessPoolExecutor() as executor:
+        for idx in executor.map(get_idx_tl, tl_idx):
             rand_indx.append(idx)
-            #nobs[i] += test
-    print(str(tl)+' completed')
+
+rand_indx = np.concatenate(rand_indx)
+
+rans,cnts = np.unique(rand_indx,return_counts=True)
+
+selobs = np.isin(ran_indices,rans)
+
+if np.array_equal(ran_indices[selobs],rans):
+    print('input/final ids are matched in order')
+else:
+    sys.exit('ids are not matched')
+
+
 
 tout = Table()
-tout['RA'] = ral_tot
-tout['DEC'] = decl_tot
-tout['NOBS'] = np.array(nobs,dtype=int)
+tout['RA'] = ral_tot[selobs]
+tout['DEC'] = decl_tot[selobs]
+tout['NOBS'] = np.array(cnts,dtype=int)
 tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'grid.ecsv',overwrite=True)
 
 #make nobs figure
