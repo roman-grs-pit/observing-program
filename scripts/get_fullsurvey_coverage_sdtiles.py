@@ -89,6 +89,7 @@ def get_pixl(coords,detfoot,detnum,PA):
     w = WCS(h)
     pixels = w.world_to_pixel(coords)
     return pixels
+
 from time import time
 
 
