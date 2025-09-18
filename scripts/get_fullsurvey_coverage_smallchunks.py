@@ -173,9 +173,9 @@ parser.add_argument("--wavmax", help="set maximum wavelength, if not None",defau
 
 
 parser.add_argument("--randens", help="density of random points /deg2 to use",default=25,type=float)
-parser.add_argument("--Nchunk", help="how many times to repeat",default=10,type=float)
-parser.add_argument("--set", help="which set of chunks?",default=0,type=float)
-parser.add_argument("--tiles", help="which set of tiles?",default='sd',type=float)
+parser.add_argument("--Nchunk", help="how many times to repeat",default=10,type=int)
+parser.add_argument("--set", help="which set of chunks?",default=0,type=int)
+parser.add_argument("--tiles", help="which set of tiles?",default='sd')
 
 
 
