@@ -247,6 +247,7 @@ nobs = np.zeros(len(ral_tot))
 dets = np.arange(1,19)
 rand_indx = []
 
+tottl = len(tl)
 def get_idx_tl(tl):
     ra0 = tiles[racol][gtiles][tl]
     dec0 = tiles[deccol][gtiles][tl]
@@ -275,7 +276,7 @@ def get_idx_tl(tl):
             idx_det = ran_indices[selp][i]
             idx.append(idx_det)
         #logger.info('completed detector '+str(det)+' on obs '+str(tl))
-    logger.info('completed '+str(tl))
+    logger.info('completed '+str(tl)+' out of '+str(tottl))
     return idx
 
 tls = tiles[0][gtiles]
