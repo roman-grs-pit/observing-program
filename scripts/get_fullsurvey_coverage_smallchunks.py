@@ -269,9 +269,10 @@ for chunk in range(int(min_chunk),args.Nchunk):
         
     ral_tot = np.array(ral_tot)
     decl_tot = np.array(decl_tot)
-    rawrap = 0
+    
     def get_idx_tl(tl):
         ra0 = tiles[racol][gtiles][tl]
+        rawrap = 0
         if ra0 > 180:
             ra0 -= 360
             logger.info('wrapped ra for '+str(tl))
