@@ -78,7 +78,9 @@ def test_foot(xpix,ypix,min_pix=0,max_pix=4088,det=1,min_lam_4foot=1.6,max_lam_4
     lt = len(test['trace_pix_x'][0])
     if max_wv_ind > lt:
         max_wv_ind = lt
-    if np.min(test['trace_pix_x'][0][min_wv_ind:max_wv_ind])>=min_pix and np.max(test['trace_pix_x'][0][min_wv_ind:max_wv_ind]) < max_pix and np.min(test['trace_pix_y'][0][min_wv_ind:max_wv_ind])>=min_pix and np.max(test['trace_pix_y'][0][min_wv_ind:max_wv_ind]) < max_pix:
+    tracex = test['trace_pix_x'][0][min_wv_ind:max_wv_ind]
+    tracey = test['trace_pix_y'][0][min_wv_ind:max_wv_ind]
+    if np.min(tracex)>=min_pix and np.max(tracex) < max_pix and np.min(tracey)>=min_pix and np.max(tracey) < max_pix:
         return 1
     else:
         return 0
@@ -287,10 +289,20 @@ for chunk in range(0,Nchunk):
         else:
             att = attitude(0, 0, ra0, dec0, pa)
         idx = []
+        ddec = dec-dec0
+        dra = ra-ra0
+        sel1deg = ddec > -1#ddec < 0.1
+        sel1deg &= ddec < 1
+        dfac = np.cos(dec0*np.pi/180)
+        sel1deg &= dra < 1/dfac
+        sel1deg &= dra > -1/dfac
+        ral_tl = ral_tot[sel1deg]
+        decl_tl = decl_tot[sel1deg]
+        ran_indices_tl = ran_indices[sel1deg]
         for det in dets:
             #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
             #pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
-            pixel_sel,sel = get_pixl_siaf(ral_tot,decl_tot,att,det)
+            pixel_sel,sel = get_pixl_siaf(ral_tl,decl_tl,att,det)
             selp = sel.astype(bool)#pixels[2].astype(bool)
             #print(np.sum(selp),len(selp))
             #for i in range(0,len(pixels[0][selp])):
@@ -304,7 +316,7 @@ for chunk in range(0,Nchunk):
                 if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
                     test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
                     if test == 1:
-                        idx_det = ran_indices[selp][i]
+                        idx_det = ran_indices_tl[selp][i]
                         idx.append(idx_det)
             #logger.info('completed detector '+str(det)+' on obs '+str(tl))
         #logger.info('completed '+str(tl)+' out of '+str(tottl))
