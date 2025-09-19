@@ -271,8 +271,8 @@ for chunk in range(int(min_chunk),args.Nchunk):
     decl_tot = np.array(decl_tot)
     def get_idx_tl(tl):
         ra0 = tiles[racol][gtiles][tl]
-        selra = ra0 > 180
-        ra0[selra] -= 360
+        if ra0 > 180
+            ra0 -= 360
         dec0 = tiles[deccol][gtiles][tl]
         pa = tiles[pacol][gtiles][tl]
         if args.wficen == 'y':
