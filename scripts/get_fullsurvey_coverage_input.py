@@ -259,7 +259,7 @@ indx_all = []
 tottl = len(tls)
 
 Nchunk = len(data)//args.chunksize + 1
-
+Nchunk = int(Nchunk)
 
 for chunk in range(0,Nchunk):
     min_indx = chunk*args.chunksize
