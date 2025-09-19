@@ -181,7 +181,7 @@ parser.add_argument("--output", help="full path to output file",default=os.envir
 
 
 args = parser.parse_args()
-
+logger.info('will save results to '+args.output)
 #no Roman footprint seems to go out of these bounds
 decm = -60
 decx = 10
@@ -266,7 +266,7 @@ for chunk in range(0,Nchunk):
     max_indx = (chunk+1)*args.chunksize
     if max_indx > len(data):
         max_indx = len(data)
-    data_chunk = data[min_indx:max_mindx]
+    data_chunk = data[min_indx:max_indx]
     t0 = time()
     
     logger.info('cut data to chunk '+str(chunk))
