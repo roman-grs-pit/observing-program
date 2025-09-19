@@ -185,7 +185,7 @@ args = parser.parse_args()
 
 decm = -60
 decx = 10
-ram = -180
+ram = -10
 rax = 180
 randens = args.randens
 fullsky_area = 360.*360/np.pi
