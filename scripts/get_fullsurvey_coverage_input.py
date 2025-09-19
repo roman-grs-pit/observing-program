@@ -289,7 +289,7 @@ for chunk in range(0,Nchunk):
         else:
             att = attitude(0, 0, ra0, dec0, pa)
         idx = []
-        ddec = decltot-dec0
+        ddec = decl_tot-dec0
         dra = ral_tot-ra0
         sel1deg = ddec > -1#ddec < 0.1
         sel1deg &= ddec < 1
