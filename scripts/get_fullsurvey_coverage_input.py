@@ -262,6 +262,7 @@ Nchunk = len(data)//args.chunksize + 1
 Nchunk = int(Nchunk)
 logger.info('will go through '+str(Nchunk)+' chunks')
 for chunk in range(0,Nchunk):
+    rand_indx =[]
     min_indx = int(chunk*args.chunksize)
     max_indx = int((chunk+1)*args.chunksize)
     if max_indx > len(data):
