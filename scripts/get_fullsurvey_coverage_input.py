@@ -196,10 +196,10 @@ data.keep_columns([args.racol,args.deccol,args.IDcol])
 selra =  data[args.racol] > 180
 data[args.racol][selra] -= 360
 
-sel = data[args.racol] > ramin
-sel &= data[args.racol] < ramax
-sel &= data[args.deccol] > decmin
-sel &= data[args.deccol] < decmax
+sel = data[args.racol] > ram
+sel &= data[args.racol] < rax
+sel &= data[args.deccol] > decm
+sel &= data[args.deccol] < decx
 
 inputsize = len(data)
 
