@@ -177,7 +177,7 @@ parser.add_argument("--deccol", help="column name for RA",default='DEC')
 parser.add_argument("--IDcol", help="column name for unique ID",default='TARGETID')
 parser.add_argument("--tiles", help="which set of tiles?",default='sd')
 parser.add_argument("--input", help="full path to input file")
-parser.add_argument("--output", help="full path to output file",default=os.environ['SCRATCH']+'test.fits')
+parser.add_argument("--output", help="full path to output file",default=os.environ['SCRATCH']+'/test.fits')
 
 
 args = parser.parse_args()
