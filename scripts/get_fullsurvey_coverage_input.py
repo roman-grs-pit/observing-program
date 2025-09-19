@@ -189,6 +189,8 @@ ram = -10
 rax = 180
 
 data = Table.read(args.input)
+if args.IDcol not in list(data.dtype.names):
+    data[args.IDcol] = np.arange(len(data)).astype(int)
 data.keep_columns([args.racol,args.deccol,args.IDcol])
 
 selra =  data[args.racol] > 180
