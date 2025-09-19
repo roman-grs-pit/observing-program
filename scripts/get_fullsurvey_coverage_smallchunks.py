@@ -269,7 +269,7 @@ for chunk in range(int(min_chunk),args.Nchunk):
         
     ral_tot = np.array(ral_tot)
     decl_tot = np.array(decl_tot)
-    rawrap = 
+    rawrap = 0
     def get_idx_tl(tl):
         ra0 = tiles[racol][gtiles][tl]
         if ra0 > 180:
