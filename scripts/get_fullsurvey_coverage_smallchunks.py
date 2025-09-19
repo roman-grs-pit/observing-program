@@ -121,6 +121,8 @@ def get_pixl_siaf(ra,dec,att_in,detnum):
     wfi = rsiaf[rap]
     wfi.set_attitude_matrix(att_in)
     cen_ra,cen_dec = wfi.idl_to_sky(0, 0)
+    if cen_ra >180:
+        cen_ra -= 360
     t1 = time()
     #print(str(t1-t0)+ 'setup')
     #ddec = abs(dec-cen_dec)
@@ -289,8 +291,8 @@ for chunk in range(int(min_chunk),args.Nchunk):
             #pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
             pixel_sel,sel = get_pixl_siaf(ral_tot,decl_tot,att,det)
             selp = sel.astype(bool)#pixels[2].astype(bool)
-            if rawrap == 1:
-                logger.info('number of selected pixels after ra wrap is '+str(np.sum(selp)))
+            #if rawrap == 1:
+            #    logger.info('number of selected pixels after ra wrap is '+str(np.sum(selp)))
             #print(np.sum(selp),len(selp))
             #for i in range(0,len(pixels[0][selp])):
             for i in range(0,len(pixel_sel[0])):
