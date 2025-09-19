@@ -289,8 +289,8 @@ for chunk in range(0,Nchunk):
         else:
             att = attitude(0, 0, ra0, dec0, pa)
         idx = []
-        ddec = dec-dec0
-        dra = ra-ra0
+        ddec = decltot-dec0
+        dra = ral_tot-ra0
         sel1deg = ddec > -1#ddec < 0.1
         sel1deg &= ddec < 1
         dfac = np.cos(dec0*np.pi/180)
