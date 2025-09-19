@@ -264,15 +264,18 @@ for chunk in range(int(min_chunk),args.Nchunk):
     ral_tot,decl_tot = cutran(ram,rax,decm,decx)#mkgrid(0,0,1,100)
     logger.info(str(len(ral_tot))+' random points will be used')
     ran_indices = (np.arange(len(ral_tot))+ args.Nchunk*1e7).astype(int)
-    in_array = np.ones((3,len(ral_tot)))*-9999
+    #in_array = np.ones((3,len(ral_tot)))*-9999
     coords = SkyCoord(ra=ral_tot*u.degree,dec=decl_tot*u.degree, frame='icrs')
         
     ral_tot = np.array(ral_tot)
     decl_tot = np.array(decl_tot)
+    rawrap = 
     def get_idx_tl(tl):
         ra0 = tiles[racol][gtiles][tl]
         if ra0 > 180:
             ra0 -= 360
+            logger.info('wrapped ra for '+str(tl))
+            rawrap = 1
         dec0 = tiles[deccol][gtiles][tl]
         pa = tiles[pacol][gtiles][tl]
         if args.wficen == 'y':
@@ -285,6 +288,8 @@ for chunk in range(int(min_chunk),args.Nchunk):
             #pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
             pixel_sel,sel = get_pixl_siaf(ral_tot,decl_tot,att,det)
             selp = sel.astype(bool)#pixels[2].astype(bool)
+            if rawrap == 1:
+                logger.info('number of selected pixels after ra wrap is '+str(np.sum(selp)))
             #print(np.sum(selp),len(selp))
             #for i in range(0,len(pixels[0][selp])):
             for i in range(0,len(pixel_sel[0])):
@@ -349,7 +354,7 @@ tout['DEC'] = dec_all
 tout['ID'] = indx_all
 tout['NOBS'] = np.array(cnts_all,dtype=int)
 tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'_chunkranset'+str(args.set)+'.ecsv',overwrite=True)
-
+logger.info('wrote to '+outdir+'nobs'+str(minwav)+str(maxwav)+'_chunkranset'+str(args.set)+'.ecsv')
 #make nobs figure
 plt.clf()
 cmap = plt.get_cmap('jet', 8)
