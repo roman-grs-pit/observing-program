@@ -260,10 +260,10 @@ tottl = len(tls)
 
 Nchunk = len(data)//args.chunksize + 1
 Nchunk = int(Nchunk)
-
+logger.info('will go through '+str(Nchunk)+' chunks')
 for chunk in range(0,Nchunk):
-    min_indx = chunk*args.chunksize
-    max_indx = (chunk+1)*args.chunksize
+    min_indx = int(chunk*args.chunksize)
+    max_indx = int((chunk+1)*args.chunksize)
     if max_indx > len(data):
         max_indx = len(data)
     data_chunk = data[min_indx:max_indx]
