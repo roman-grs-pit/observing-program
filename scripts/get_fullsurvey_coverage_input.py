@@ -267,14 +267,15 @@ for chunk in range(0,Nchunk):
     max_indx = int((chunk+1)*args.chunksize)
     if max_indx > len(data):
         max_indx = len(data)
-    data_chunk = data[min_indx:max_indx]
+    #data_chunk = data[min_indx:max_indx]
     t0 = time()
     
-    logger.info('cut data to chunk '+str(chunk))
+    
             
-    ral_tot = data_chunk[args.racol]
-    decl_tot = data_chunk[args.deccol]
-    ran_indices = data_chunk[args.IDcol]
+    ral_tot = data[min_indx:max_indx][args.racol]
+    decl_tot = data[min_indx:max_indx][args.deccol]
+    ran_indices = data[min_indx:max_indx][args.IDcol]
+    logger.info('cut data to chunk '+str(chunk))
     def get_idx_tl(tl):
         ra0 = tiles[racol][gtiles][tl]
         if ra0 > 180:
