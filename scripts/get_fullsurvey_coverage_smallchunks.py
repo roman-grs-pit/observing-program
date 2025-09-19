@@ -278,7 +278,7 @@ for chunk in range(int(min_chunk),args.Nchunk):
         rawrap = 0
         if ra0 > 180:
             ra0 -= 360
-            logger.info('wrapped ra for '+str(tl))
+            #logger.info('wrapped ra for '+str(tl))
             rawrap = 1
         dec0 = tiles[deccol][gtiles][tl]
         pa = tiles[pacol][gtiles][tl]
