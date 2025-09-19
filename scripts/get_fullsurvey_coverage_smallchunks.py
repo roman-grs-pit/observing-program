@@ -348,7 +348,7 @@ tout['RA'] = ra_all
 tout['DEC'] = dec_all
 tout['ID'] = indx_all
 tout['NOBS'] = np.array(cnts_all,dtype=int)
-tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'_chunkranset'+str(set)+'.ecsv',overwrite=True)
+tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'_chunkranset'+str(args.set)+'.ecsv',overwrite=True)
 
 #make nobs figure
 plt.clf()
