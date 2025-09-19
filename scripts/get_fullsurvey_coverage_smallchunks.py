@@ -115,6 +115,7 @@ def get_pixl(coords,detfoot,detnum,PA):
 from time import time
 
 
+#transfer this to library
 def get_pixl_siaf(ra,dec,att_in,detnum):
     t0 = time()
     rap = f'WFI{detnum :02}_FULL'
