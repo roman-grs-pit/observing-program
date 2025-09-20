@@ -1,6 +1,8 @@
 '''
 Given some input file (assumed to be fits) and tiling, determine the number of times each
 ra,dec in the input will be observed by the grism with the assumed wavelength coverage
+Example run, adding info to DESI all sky randoms:
+srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_fullsurvey_coverage_input.py --tiles socv0 --input /dvs_ro/cfs/cdirs/desi/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-allsky-1-0.fits
 '''
 
 import os
@@ -173,7 +175,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--wficen", help="if y, positions are detector center",default='y')
 parser.add_argument("--wavmin", help="set minimum wavelength, if not None",default=None)
 parser.add_argument("--wavmax", help="set maximum wavelength, if not None",default=None)
-parser.add_argument("--chunksize", help="objects to process per chunk",default=2.5e5,type=int)
+parser.add_argument("--chunksize", help="objects to process per chunk",default=10000000,type=int)
 parser.add_argument("--racol", help="column name for RA",default='RA')
 parser.add_argument("--deccol", help="column name for RA",default='DEC')
 parser.add_argument("--IDcol", help="column name for unique ID",default='TARGETID')
