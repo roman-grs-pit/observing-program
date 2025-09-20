@@ -362,7 +362,7 @@ dec_all = np.concatenate(dec_all)
 cnts_all = np.concatenate(cnts_all)
 indx_all = np.concatenate(indx_all)
 
-logger.info('concatenated data '+str(len(ral_all))+' data points with at least one observation')
+logger.info('concatenated data '+str(len(ra_all))+' data points with at least one observation')
 
 tout = Table()
 tout['RA'] = ra_all
