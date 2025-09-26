@@ -127,6 +127,9 @@ parser.add_argument("--decmax", help="dec center",default=-9,type=float)
 parser.add_argument("--wficen", help="if y, positions are detector center",default='y')
 parser.add_argument("--wavmin", help="set minimum wavelength, if not None",default=None)
 parser.add_argument("--wavmax", help="set maximum wavelength, if not None",default=None)
+parser.add_argument("--padiff", help="diff in PA for the repeated values",default=0,type=float)
+parser.add_argument("--radiff", help="diff in RA for the repeated values",default=0,type=float)
+parser.add_argument("--decdiff", help="diff in DEC for the repeated values",default=0,type=float)
 
 
 parser.add_argument("--randens", help="density of random points /deg2 to use",default=2500,type=float)
@@ -204,10 +207,18 @@ ax = fig.add_subplot(111)
 
 nobs = np.zeros(len(ral_tot))
 dets = np.arange(1,19)
-for tl in range(0,len(tiles[gtiles&selreg])):
-    ra0 = tiles[racol][gtiles&selreg][tl]
-    dec0 = tiles[deccol][gtiles&selreg][tl]
-    pa = tiles[pacol][gtiles&selreg][tl]
+tls = tiles[gtiles&selreg]
+tls.sort('RA')
+nr = 0
+for i in range(0,len(tls),2):
+    if tls[i]['RA'] == tls[i+1]['RA'] and tls[i]['DEC'] == tls[i+1]['DEC'] and tls[i]['PA'] == tls[i+1]['PA']:
+        tls[i+1]["PA"] += args.padiff
+        tls[i+1]["RA"] += args.radiff
+        tls[i+1]["DEC"] += args.decdiff
+for tl in range(0,len(tls)):
+    ra0 = tls[racol][tl]
+    dec0 = tls[deccol][tl]
+    pa = tls[pacol][tl]
     if args.wficen == 'y':
         att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0, dec0, pa)
     else:
@@ -228,7 +239,10 @@ tout = Table()
 tout['RA'] = ral_tot
 tout['DEC'] = decl_tot
 tout['NOBS'] = np.array(nobs,dtype=int)
-tout.write(outdir+'nobs'+str(minwav)+str(maxwav)+'grid.ecsv',overwrite=True)
+fstr = str(minwav)+str(maxwav)+str(args.padiff)+str(args.radiff)+str(args.decdiff)
+outf = outdir+'nobs'+fstr+'grid.ecsv'
+print('will write to '+outf)
+tout.write(outf,overwrite=True)
 
 #make nobs figure
 plt.clf()
@@ -242,5 +256,5 @@ plt.ylim(decm,decx)
 plt.xlabel('ra (degrees)')
 plt.ylabel('dec (degrees)')
 #plt.title(r'footprint 4 rolls/2 dithers')
-plt.savefig(outdir+'nobs'+str(minwav)+str(maxwav)+'.png')
+plt.savefig(outdir+'nobs'+fstr+'.png')
 plt.show()
