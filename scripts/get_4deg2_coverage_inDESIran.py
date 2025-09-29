@@ -407,6 +407,6 @@ tout['DEC'] = dec_all
 tout['ID'] = indx_all
 tout['NOBS'] = np.array(cnts_all,dtype=int)
 logger.info('about to write output')
-tout.write(args.output)
+tout.write(args.output,overwrite=True)
 
 logger.info('finished successfully!')
