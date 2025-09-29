@@ -194,10 +194,10 @@ parser.add_argument("--decdiff", help="diff in DEC for the repeated values",defa
 args = parser.parse_args()
 logger.info('will save results to '+args.output)
 #no Roman footprint seems to go out of these bounds
-decm = args.ramin
-decx = args.ramax
-ram = args.decmin
-rax = args.decmax
+decm = args.decmin
+decx = args.decmax
+ram = args.ramin
+rax = args.ramax
 
 data = []
 
