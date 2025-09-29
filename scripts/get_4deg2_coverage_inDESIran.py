@@ -333,26 +333,27 @@ for chunk in range(0,Nchunk):
         ral_tl = ral_tot[sel1deg]
         decl_tl = decl_tot[sel1deg]
         ran_indices_tl = ran_indices[sel1deg]
-        for det in dets:
-            #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
-            #pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
-            pixel_sel,sel = get_pixl_siaf(ral_tl,decl_tl,att,det)
-            selp = sel.astype(bool)#pixels[2].astype(bool)
-            #print(np.sum(selp),len(selp))
-            #for i in range(0,len(pixels[0][selp])):
-            for i in range(0,len(pixel_sel[0])):
-                #xpix = pixels[0][selp][i]
-                #ypix = pixels[1][selp][i]
-                xpix = pixel_sel[0][i]
-                ypix = pixel_sel[1][i]
-    
-                test = 0
-                if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
-                    test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
-                    if test == 1:
-                        idx_det = ran_indices_tl[selp][i]
-                        idx.append(idx_det)
-            #logger.info('completed detector '+str(det)+' on obs '+str(tl))
+        if len(ran_indices_tl) > 0:
+            for det in dets:
+                #pixels = get_pixl(coords,dfoot,det,PA-pa_off)
+                #pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
+                pixel_sel,sel = get_pixl_siaf(ral_tl,decl_tl,att,det)
+                selp = sel.astype(bool)#pixels[2].astype(bool)
+                #print(np.sum(selp),len(selp))
+                #for i in range(0,len(pixels[0][selp])):
+                for i in range(0,len(pixel_sel[0])):
+                    #xpix = pixels[0][selp][i]
+                    #ypix = pixels[1][selp][i]
+                    xpix = pixel_sel[0][i]
+                    ypix = pixel_sel[1][i]
+        
+                    test = 0
+                    if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
+                        test = test_foot(xpix,ypix,det=det,min_lam_4foot=minwav,max_lam_4foot=maxwav)
+                        if test == 1:
+                            idx_det = ran_indices_tl[selp][i]
+                            idx.append(idx_det)
+                #logger.info('completed detector '+str(det)+' on obs '+str(tl))
         #logger.info('completed '+str(tl)+' out of '+str(tottl))
         return idx
     
