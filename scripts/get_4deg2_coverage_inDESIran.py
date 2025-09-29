@@ -224,6 +224,7 @@ for i in range(0,args.nran):
     logger.info('processed random file '+input_fn)
 
 data = np.concatenate(data)
+logger.info('number of randoms kept are '+str(len(data)))
 #logger.info('apply ra,dec bounds, data has been cut from '+str(inputsize)+' to '+str(len(data)))
 
 minwav = 1
@@ -238,10 +239,11 @@ if args.wavmax is not None:
 wfistr =''
 if args.wficen != 'y':
     wfistr = 'notwficen'    
-outdir = out_root+'fullsurvey_'+args.tiles+'/ramin'+str(ram)+'decmin'+str(decm)+wavstr+wfistr+'/'
-logger.info('results will be written to '+outdir)
-if not os.path.exists(outdir):
-    os.makedirs(outdir)
+
+#outdir = out_root+'fullsurvey_'+args.tiles+'/ramin'+str(ram)+'decmin'+str(decm)+wavstr+wfistr+'/'
+#logger.info('results will be written to '+outdir)
+#if not os.path.exists(outdir):
+#    os.makedirs(outdir)
 
 if args.tiles == 'sd':
     tiles = np.loadtxt(os.environ['github_dir']+'observing-program/data/hlwas_tiling_241206.txt').transpose()
