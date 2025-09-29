@@ -282,7 +282,7 @@ selreg &= tls[deccol] > args.decmin-pad
 selreg &= tls[deccol] < args.decmax+pad
 #print(len(tls[selreg]))
 tls = tls[selreg]
-nobs = np.zeros(len(ral_tot))
+#nobs = np.zeros(len(ral_tot))
 
     
 dets = np.arange(1,19)
