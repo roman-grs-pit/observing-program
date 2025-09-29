@@ -206,7 +206,7 @@ for i in range(0,args.nran):
     logger.info('reading random file '+input_fn)
     datai = Table.read(input_fn)
     if args.IDcol not in list(datai.dtype.names):
-        datai[args.IDcol] = np.arange(len(datai)).astype(int)
+        datai[args.IDcol] = (i*1e10+np.arange(len(datai))).astype(int)
     datai.keep_columns([args.racol,args.deccol,args.IDcol])
 
     selra =  datai[args.racol] > 180
