@@ -181,7 +181,7 @@ parser.add_argument("--deccol", help="column name for RA",default='DEC')
 parser.add_argument("--IDcol", help="column name for unique ID",default='TARGETID')
 parser.add_argument("--tiles", help="which set of tiles?",default='sd')
 parser.add_argument("--nran", help="number of randoms to use",default=1,type=int)
-parser.add_argument("--output", help="full path to output file",default=os.environ['SCRATCH']+'/test4deg2.fits')
+#parser.add_argument("--output", help="full path to output file",default=os.environ['SCRATCH']+'/test4deg2.fits')
 parser.add_argument("--ramin", help="ra center",default=49,type=float)
 parser.add_argument("--ramax", help="ra center",default=51,type=float)
 parser.add_argument("--decmin", help="dec center",default=-11,type=float)
@@ -192,7 +192,7 @@ parser.add_argument("--decdiff", help="diff in DEC for the repeated values",defa
 
 
 args = parser.parse_args()
-logger.info('will save results to '+args.output)
+
 #no Roman footprint seems to go out of these bounds
 decm = args.decmin
 decx = args.decmax
@@ -240,10 +240,15 @@ wfistr =''
 if args.wficen != 'y':
     wfistr = 'notwficen'    
 
-#outdir = out_root+'fullsurvey_'+args.tiles+'/ramin'+str(ram)+'decmin'+str(decm)+wavstr+wfistr+'/'
-#logger.info('results will be written to '+outdir)
-#if not os.path.exists(outdir):
-#    os.makedirs(outdir)
+outdir = out_root+'fullsurvey_'+args.tiles+'/ramin'+str(ram)+'decmin'+str(decm)+wavstr+wfistr+'/'
+logger.info('results will be written to '+outdir)
+if not os.path.exists(outdir):
+    os.makedirs(outdir)
+
+fstr = 'DESIran'+str(args.nran)+str(minwav)+str(maxwav)+str(args.padiff)+str(args.radiff)+str(args.decdiff)
+outf = outdir+'nobs'+fstr+'grid.ecsv'
+logger.info('will save results to '+outf)
+
 
 if args.tiles == 'sd':
     tiles = np.loadtxt(os.environ['github_dir']+'observing-program/data/hlwas_tiling_241206.txt').transpose()
@@ -406,7 +411,7 @@ tout['RA'] = ra_all
 tout['DEC'] = dec_all
 tout['ID'] = indx_all
 tout['NOBS'] = np.array(cnts_all,dtype=int)
-logger.info('about to write output')
-tout.write(args.output,overwrite=True)
+logger.info('about to write output to '+outf)
+tout.write(outf,overwrite=True)
 
 logger.info('finished successfully!')
