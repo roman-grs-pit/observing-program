@@ -229,7 +229,7 @@ else:
         data.append(datai)
         logger.info('processed random file '+input_fn)
     
-    data = np.concatenate(data)
+    data = Table(np.concatenate(data))
     logger.info('writing randoms to '+ran4degfn)
     data.write(ran4degfn)
 logger.info('number of randoms used is '+str(len(data)))
