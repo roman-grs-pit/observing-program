@@ -201,30 +201,38 @@ rax = args.ramax
 
 data = []
 
-for i in range(0,args.nran):
-    input_fn = '/dvs_ro/cfs/cdirs/desi/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-allsky-1-'+str(i)+'.fits'
-    logger.info('reading random file '+input_fn)
-    datai = Table.read(input_fn)
-    if args.IDcol not in list(datai.dtype.names):
-        datai[args.IDcol] = (i*1e10+np.arange(len(datai))).astype(int)
-    datai.keep_columns([args.racol,args.deccol,args.IDcol])
+ran4degfn = out_root+'/DESIran'+str(args.nran)+args.ramin+args.ramax+args.decmin+args.decamx+'.fits'
 
-    selra =  datai[args.racol] > 180
-    datai[args.racol][selra] -= 360
-
-    sel = datai[args.racol] > ram
-    sel &= datai[args.racol] < rax
-    sel &= datai[args.deccol] > decm
-    sel &= datai[args.deccol] < decx
-
-    #inputsize = len(data)
-
-    datai = datai[sel]
-    data.append(datai)
-    logger.info('processed random file '+input_fn)
-
-data = np.concatenate(data)
-logger.info('number of randoms kept are '+str(len(data)))
+if os.path.isfile(ran4degfn):
+    logger.info('reading randoms from '+ran4degfn)
+    data = Table.read(ran4degfn)
+else:
+    for i in range(0,args.nran):
+        input_fn = '/dvs_ro/cfs/cdirs/desi/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-allsky-1-'+str(i)+'.fits'
+        logger.info('reading random file '+input_fn)
+        datai = Table.read(input_fn)
+        if args.IDcol not in list(datai.dtype.names):
+            datai[args.IDcol] = (i*1e10+np.arange(len(datai))).astype(int)
+        datai.keep_columns([args.racol,args.deccol,args.IDcol])
+    
+        selra =  datai[args.racol] > 180
+        datai[args.racol][selra] -= 360
+    
+        sel = datai[args.racol] > ram
+        sel &= datai[args.racol] < rax
+        sel &= datai[args.deccol] > decm
+        sel &= datai[args.deccol] < decx
+    
+        #inputsize = len(data)
+    
+        datai = datai[sel]
+        data.append(datai)
+        logger.info('processed random file '+input_fn)
+    
+    data = np.concatenate(data)
+    logger.info('writing randoms to '+ran4degfn)
+    data.write(ran4degfn)
+logger.info('number of randoms used is '+str(len(data)))
 #logger.info('apply ra,dec bounds, data has been cut from '+str(inputsize)+' to '+str(len(data)))
 
 minwav = 1
