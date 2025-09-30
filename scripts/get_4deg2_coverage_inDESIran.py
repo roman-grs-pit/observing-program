@@ -230,22 +230,16 @@ logger.info('number of randoms kept are '+str(len(data)))
 minwav = 1
 maxwav = 1.9
 wavstr = ''
-if args.wavmin is not None:
-    minwav = float(args.wavmin)
-    wavstr += 'lam'+str(round(minwav,3))
-if args.wavmax is not None:
-    maxwav = float(args.wavmax)
-    wavstr += str(round(maxwav,3))
 wfistr =''
 if args.wficen != 'y':
     wfistr = 'notwficen'    
 
-outdir = out_root+'fullsurvey_'+args.tiles+'/ramin'+str(ram)+'decmin'+str(decm)+wavstr+wfistr+'/'
+outdir = out_root+'4deg2_'+args.tiles+'/ramin'+str(ram)+'decmin'+str(decm)+wfistr+'/'
 logger.info('results will be written to '+outdir)
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
-fstr = 'DESIran'+str(args.nran)+str(minwav)+str(maxwav)+str(args.padiff)+str(args.radiff)+str(args.decdiff)
+fstr = 'DESIran'+str(args.nran)+'_lam'+str(minwav)+str(maxwav)+'_dpa_'+str(args.padiff)+'_dra'+str(args.radiff)+'_ddec'+str(args.decdiff)
 outf = outdir+'nobs'+fstr+'grid.ecsv'
 logger.info('will save results to '+outf)
 
