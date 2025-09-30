@@ -201,7 +201,7 @@ rax = args.ramax
 
 data = []
 
-ran4degfn = out_root+'/DESIran'+str(args.nran)+args.ramin+args.ramax+args.decmin+args.decamx+'.fits'
+ran4degfn = out_root+'/DESIran'+str(args.nran)+str(args.ramin)+str(args.ramax)+str(args.decmin)+str(args.decamx)+'.fits'
 
 if os.path.isfile(ran4degfn):
     logger.info('reading randoms from '+ran4degfn)
