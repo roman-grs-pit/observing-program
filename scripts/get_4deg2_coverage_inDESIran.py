@@ -287,11 +287,11 @@ if args.tiles == 'socv0':
             tls[i+1]["PA"] += args.padiff
             tls[i+1]["RA"] += args.radiff
             tls[i+1]["DEC"] += args.decdiff
-logger.info('unique position angles are '+str(np.unique(tls['PA'])))
-#ndec = len(np.unique(tls['DEC']))
-#logger.info('unique/total DECs '+str(ndec)+' '+str(len(tls)))
-tu = unique(tls,keys=['RA','DEC'])
-logger.info('unique/total RA,DECs '+str(len(tu))+' '+str(len(tls)))
+    #logger.info('unique position angles are '+str(np.unique(tls['PA'])))
+    #ndec = len(np.unique(tls['DEC']))
+    #logger.info('unique/total DECs '+str(ndec)+' '+str(len(tls)))
+    #tu = unique(tls,keys=['RA','DEC'])
+    #logger.info('unique/total RA,DECs '+str(len(tu))+' '+str(len(tls)))
 selreg = tls[racol] > args.ramin-2*pad/np.cos(args.decmin*np.pi/180)
 selreg &= tls[racol] < args.ramax+2*pad/np.cos(args.decmin*np.pi/180)
 selreg &= tls[deccol] > args.decmin-pad
