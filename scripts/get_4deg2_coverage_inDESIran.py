@@ -278,9 +278,12 @@ if args.tiles == 'socv0':
     tls = tiles[gtiles]
 
     tls.sort('RA')
+    for i in range(0,len(tls)):
+        if (tls[i]['PA'] == 60): #this is for the dec offset between the flipped PA
+            tls[i]['DEC'] += args.decpa
    
     for i in range(0,len(tls),2):
-        if tls[i]['RA'] == tls[i+1]['RA'] and tls[i]['DEC'] == tls[i+1]['DEC'] and tls[i]['PA'] == tls[i+1]['PA']:
+        if tls[i]['RA'] == tls[i+1]['RA'] and tls[i]['PA'] == tls[i+1]['PA']: #and tls[i]['DEC'] == tls[i+1]['DEC']: 
             tls[i+1]["PA"] += args.padiff
             tls[i+1]["RA"] += args.radiff
             tls[i+1]["DEC"] += args.decdiff
