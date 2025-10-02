@@ -247,7 +247,7 @@ logger.info('results will be written to '+outdir)
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
-fstr = 'DESIran'+str(args.nran)+'_lam'+str(minwav)+str(maxwav)+'_dpa_'+str(args.padiff)+'_dra'+str(args.radiff)+'_ddec'+str(args.decdiff)
+fstr = 'DESIran'+str(args.nran)+'_lam'+str(minwav)+str(maxwav)+'_dpa_'+str(args.padiff)+'_dra'+str(args.radiff)+'_ddec'+str(args.decdiff)+'_ddecpa'+str(args.decpa)
 outf = outdir+'nobs'+fstr+'grid.ecsv'
 logger.info('will save results to '+outf)
 
