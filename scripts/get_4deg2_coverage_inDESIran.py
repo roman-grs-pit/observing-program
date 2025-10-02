@@ -263,7 +263,11 @@ if args.tiles == 'sd':
     if args.wficen != 'y':
         pad = 0.5
     print(len(tiles[0][gtiles]))
-    tls = tiles[0][gtiles]
+    tls = Table()
+    tls['RA'] = tiles[racol][gtiles]
+    tls['DEC'] = tiles[deccol][gtiles]
+    tls['PA'] = tiles[pacol][gtiles]
+    #tls = tiles[0][gtiles]
     
 if args.tiles == 'socv0':
     tiles = Table.read(os.environ['github_dir']+'observing-program/data/tillingfromJavi_994_fixed_workaround.sim.ecsv')
@@ -292,10 +296,10 @@ if args.tiles == 'socv0':
     #logger.info('unique/total DECs '+str(ndec)+' '+str(len(tls)))
     #tu = unique(tls,keys=['RA','DEC'])
     #logger.info('unique/total RA,DECs '+str(len(tu))+' '+str(len(tls)))
-selreg = tls[racol] > args.ramin-2*pad/np.cos(args.decmin*np.pi/180)
-selreg &= tls[racol] < args.ramax+2*pad/np.cos(args.decmin*np.pi/180)
-selreg &= tls[deccol] > args.decmin-pad
-selreg &= tls[deccol] < args.decmax+pad
+selreg = tls['RA'] > args.ramin-2*pad/np.cos(args.decmin*np.pi/180)
+selreg &= tls['RA'] < args.ramax+2*pad/np.cos(args.decmin*np.pi/180)
+selreg &= tls['DEC'] > args.decmin-pad
+selreg &= tls['DEC'] < args.decmax+pad
 #print(len(tls[selreg]))
 tls = tls[selreg]
 #nobs = np.zeros(len(ral_tot))
@@ -329,11 +333,11 @@ for chunk in range(0,Nchunk):
     ran_indices = data[min_indx:max_indx][args.IDcol]
     logger.info('cut data to chunk '+str(chunk))
     def get_idx_tl(tl):
-        ra0 = tls[racol][tl]
+        ra0 = tls['RA'][tl]
         if ra0 > 180:
             ra0 -= 360
-        dec0 = tls[deccol][tl]
-        pa = tls[pacol][tl]
+        dec0 = tls['DEC'][tl]
+        pa = tls['PA'][tl]
         if args.wficen == 'y':
             att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0, dec0, pa)
         else:
