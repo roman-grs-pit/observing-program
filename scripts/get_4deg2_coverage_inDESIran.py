@@ -189,7 +189,7 @@ parser.add_argument("--decmax", help="dec center",default=-9,type=float)
 parser.add_argument("--padiff", help="diff in PA for the repeated values",default=0,type=float)
 parser.add_argument("--radiff", help="diff in RA for the repeated values",default=0,type=float)
 parser.add_argument("--decdiff", help="diff in DEC for the repeated values",default=0,type=float)
-
+parser.add_argument("--decpa", help="add diff in DEC for the flipped roll angles",default=0,type=float)
 
 args = parser.parse_args()
 
@@ -285,6 +285,8 @@ if args.tiles == 'socv0':
             tls[i+1]["RA"] += args.radiff
             tls[i+1]["DEC"] += args.decdiff
 logger.info('unique position angles are '+str(np.unique(tls['PA'])))
+ndec = len(np.unique(tls['DEC']))
+logger.info('unique/total DECs '+str(ndec)+' '+str(len(tls)))
 selreg = tls[racol] > args.ramin-2*pad/np.cos(args.decmin*np.pi/180)
 selreg &= tls[racol] < args.ramax+2*pad/np.cos(args.decmin*np.pi/180)
 selreg &= tls[deccol] > args.decmin-pad
