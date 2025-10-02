@@ -284,7 +284,7 @@ if args.tiles == 'socv0':
             tls[i+1]["PA"] += args.padiff
             tls[i+1]["RA"] += args.radiff
             tls[i+1]["DEC"] += args.decdiff
-
+logger.info('unique position angles are '+str(np.unique(tls['PA'])))
 selreg = tls[racol] > args.ramin-2*pad/np.cos(args.decmin*np.pi/180)
 selreg &= tls[racol] < args.ramax+2*pad/np.cos(args.decmin*np.pi/180)
 selreg &= tls[deccol] > args.decmin-pad
