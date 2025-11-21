@@ -45,7 +45,7 @@ logger.addHandler(ch)
 sys.path.append('/global/common/software/m4943/grizli0/observing-program/py/')
 sys.path.append('/global/common/software/m4943/grizli0/grism_sim/py/')
 os.environ["WEBBPSF_PATH"]="/global/cfs/cdirs/m4943/grismsim/webbpsf-data"
-out_root = '/global/cfs/cdirs/m4943/footprint/'
+
 os.environ['github_dir']='/global/common/software/m4943/grizli0/'
 
 #similarly, should change to make this an environment variable
@@ -182,6 +182,7 @@ parser.add_argument("--IDcol", help="column name for unique ID",default='TARGETI
 parser.add_argument("--tiles", help="which set of tiles?",default='sd')
 parser.add_argument("--nran", help="number of randoms to use",default=1,type=int)
 #parser.add_argument("--output", help="full path to output file",default=os.environ['SCRATCH']+'/test4deg2.fits')
+parser.add_argument("--outroot", help="root directory for output",default=os.environ['SCRATCH'])
 parser.add_argument("--ramin", help="ra center",default=49,type=float)
 parser.add_argument("--ramax", help="ra center",default=51,type=float)
 parser.add_argument("--decmin", help="dec center",default=-11,type=float)
@@ -192,7 +193,7 @@ parser.add_argument("--decdiff", help="diff in DEC for the repeated values",defa
 parser.add_argument("--decpa", help="add diff in DEC for the flipped roll angles",default=0,type=float)
 
 args = parser.parse_args()
-
+#out_root = '/global/cfs/cdirs/m4943/footprint/'
 #no Roman footprint seems to go out of these bounds
 decm = args.decmin
 decx = args.decmax
