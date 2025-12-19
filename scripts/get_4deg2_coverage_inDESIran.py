@@ -243,7 +243,7 @@ wfistr =''
 if args.wficen != 'y':
     wfistr = 'notwficen'    
 
-outdir = out_root+'4deg2_'+args.tiles+'/ramin'+str(ram)+'decmin'+str(decm)+wfistr+'/'
+outdir = args.outroot+'4deg2_'+args.tiles+'/ramin'+str(ram)+'decmin'+str(decm)+wfistr+'/'
 logger.info('results will be written to '+outdir)
 if not os.path.exists(outdir):
     os.makedirs(outdir)
