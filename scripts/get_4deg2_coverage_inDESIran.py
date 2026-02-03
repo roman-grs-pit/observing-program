@@ -209,7 +209,8 @@ if os.path.isfile(ran4degfn):
     data = Table.read(ran4degfn)
 else:
     for i in range(0,args.nran):
-        input_fn = '/dvs_ro/cfs/cdirs/desi/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-allsky-1-'+str(i)+'.fits'
+        #input_fn = '/dvs_ro/cfs/cdirs/desi/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-allsky-1-'+str(i)+'.fits'
+        input_fn = '/dvs_ro/cfs/cdirs/desi/public/ets/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-allsky-1-'+str(i)+'.fits'
         logger.info('reading random file '+input_fn)
         datai = Table.read(input_fn)
         if args.IDcol not in list(datai.dtype.names):
