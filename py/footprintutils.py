@@ -8,14 +8,14 @@ wfi_cen = rsiaf['WFI_CEN']
 
 
 def get_pixl_siaf(ra, dec, att_in, detnum):
-    t0 = time()
+    # t0 = time()
     rap = f'WFI{detnum :02}_FULL'
     wfi = rsiaf[rap]
     wfi.set_attitude_matrix(att_in)
     cen_ra, cen_dec = wfi.idl_to_sky(0, 0)
     if cen_ra > 180:
         cen_ra -= 360
-    t1 = time()
+    # t1 = time()
     # print(str(t1-t0)+ 'setup')
     # ddec = abs(dec-cen_dec)
     # dra = abs(ra-cen_ra)
@@ -26,18 +26,18 @@ def get_pixl_siaf(ra, dec, att_in, detnum):
     dfac = np.cos(np.min(dec)*np.pi/180)
     sel &= dra < 0.1/dfac
     sel &= dra > -0.1/dfac
-    t2 = time()
+    # t2 = time()
     # print(str(t2-t1)+' masked array')
     # pixels = np.copy(in_array)
     # pixels[0][sel] = -999
-    t3 = time()
+    # t3 = time()
     # print(str(t3-t2)+' initialize array')
 
     pixels_sel = wfi.sky_to_sci(ra[sel], dec[sel])
     # pixels[0][sel] = pixels_sel[0]
     # pixels[1][sel] = pixels_sel[1]
     # pixels[2] = sel
-    t4 = time()
+    # t4 = time()
     # print(str(t4-t3)+' final result')
     return pixels_sel, sel  # pixels
 
