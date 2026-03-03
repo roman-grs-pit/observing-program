@@ -2,8 +2,13 @@
 Given some input file (assumed to be fits) and tiling, determine the number of times each
 ra,dec in the input will be observed by the grism with the assumed wavelength coverage
 Example run, adding info to DESI all sky randoms:
+export $github_dir=/global/common/software/m4943/grizli0/
+export PYTHONPATH=$PYTHONPATH:$github_dir/observing-program/py/:$github_dir/optical_model_tools/py/
 srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_4deg2_coverage_inDESIran.py --tiles socv0 --nran 1 --outroot /global/cfs/cdirs/m4943/footprint/ --ramin 49 --ramax 51 --decmin -11 --decmax -9
 '''
+from optical_model_tools.v0_6 import test_det as test_det_v06
+from optical_model_tools.v0_6 import optical_model as opmod_v06
+from optical_model_tools.v0_8 import optical_model as opmod_v08
 import logging
 import argparse
 import importlib
@@ -17,15 +22,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import glob
 from pysiaf.utils.rotations import attitude
-from optical_model_tools.v0_8 import optical_model as opmod_v08
-from optical_model_tools.v0_6 import optical_model as opmod_v06
-from optical_model_tools.v0_6 import test_det as test_det_v06
 import footprintutils as fp
 import os
 import sys
-os.environ['github_dir'] = '/global/common/software/m4943/grizli0/'
-sys.path.append(os.environ['github_dir']+'/observing-program/py/')
-sys.path.append(os.environ['github_dir']+'/optical_model_tools/py/')
+# os.environ['github_dir'] = '/global/common/software/m4943/grizli0/'
+# sys.path.append(os.environ['github_dir']+'/observing-program/py/')
+# sys.path.append(os.environ['github_dir']+'/optical_model_tools/py/')
 
 
 # create logger
