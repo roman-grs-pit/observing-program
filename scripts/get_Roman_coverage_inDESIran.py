@@ -190,6 +190,19 @@ if args.tiles == 'sd':
     tls['PA'] = tiles[pacol][gtiles]
     # tls = tiles[0][gtiles]
 
+if args.tiles == 'socv1':
+    tiles = Table.read(
+        os.environ['github_dir']+'observing-program/data/roman_hlwas.sim.ecsv')
+    gtiles = tiles['BANDPASS'] == 'GRISM'
+
+    racol = 'RA'
+    deccol = 'DEC'
+    pacol = 'PA'
+    pad = 0.2
+    if args.wficen != 'y':
+        pad = 0.5
+    tls = tiles[gtiles]
+
 if args.tiles == 'socv0':
     tiles = Table.read(
         os.environ['github_dir']+'observing-program/data/tillingfromJavi_994_fixed_workaround.sim.ecsv')
