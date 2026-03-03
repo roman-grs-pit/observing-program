@@ -25,6 +25,7 @@ from pysiaf.utils.rotations import attitude
 import footprintutils as fp
 import os
 import sys
+from time import time
 # os.environ['github_dir'] = '/global/common/software/m4943/grizli0/'
 # sys.path.append(os.environ['github_dir']+'/observing-program/py/')
 # sys.path.append(os.environ['github_dir']+'/optical_model_tools/py/')
