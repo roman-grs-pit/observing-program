@@ -1,0 +1,457 @@
+'''
+Given some input file (assumed to be fits) and tiling, determine the number of times each
+ra,dec in the input will be observed by the grism with the assumed wavelength coverage
+Example run, adding info to DESI all sky randoms:
+export github_dir=/global/common/software/m4943/grizli0/
+export PYTHONPATH=$PYTHONPATH:$github_dir/observing-program/py/:$github_dir/optical_model_tools/py/
+srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_4deg2_coverage_inDESIran.py --tiles socv0 --nran 1 --outroot /global/cfs/cdirs/m4943/footprint/ --ramin 49 --ramax 51 --decmin -11 --decmax -9
+'''
+from optical_model_tools.v0_8 import test_det as test_det_v08
+from optical_model_tools.v0_6 import test_det as test_det_v06
+from optical_model_tools.v0_6 import optical_model as opmod_v06
+from optical_model_tools.v0_8 import optical_model as opmod_v08
+import logging
+import argparse
+import importlib
+from astropy.coordinates import SkyCoord
+from astropy import units as u
+from astropy.wcs import WCS
+from astropy.table import Table, unique
+from astropy.io import fits
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import glob
+from pysiaf.utils.rotations import attitude
+import footprintutils as fp
+import os
+import sys
+from time import time
+# os.environ['github_dir'] = '/global/common/software/m4943/grizli0/'
+# sys.path.append(os.environ['github_dir']+'/observing-program/py/')
+# sys.path.append(os.environ['github_dir']+'/optical_model_tools/py/')
+
+
+# create logger
+logname = 'Roman_coverage'
+logger = logging.getLogger(logname)
+logger.setLevel(logging.INFO)
+
+# create console handler and set level to debug
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+
+# create formatter
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# add formatter to ch
+ch.setFormatter(formatter)
+
+# add ch to logger
+logger.addHandler(ch)
+
+
+# on NERSC; should change this so that it is already sourced by environment script
+# sys.path.append('/global/common/software/m4943/grizli0/grism_sim/py/')
+# os.environ["WEBBPSF_PATH"]="/global/cfs/cdirs/m4943/grismsim/webbpsf-data"
+
+
+# similarly, should change to make this an environment variable
+code_data_dir = '/global/common/software/m4943/grizli0/observing-program/data/'
+
+
+# import pysiaf
+# rsiaf = pysiaf.Siaf('Roman')
+# wfi_cen = rsiaf['WFI_CEN']
+
+optmod06 = opmod_v06.RomanOpticalModel()
+optmod08 = opmod_v08.RomanOpticalModel()
+
+# import optical_model
+# optmod = optical_model.RomanOpticalModel()
+
+
+# should move this to code library
+# def test_foot(xpix,ypix,min_pix=0,max_pix=4088,det=1,min_lam_4foot=1.6,max_lam_4foot=1.93):
+#     #xpix,ypix is the pixel center for the object in the direct image
+#     #min_pix,max_pix represent the detector bounds in pixels
+#     #det is the SCA detector number
+#     #min_lam_4foot is the minimum wavelength required to be considered
+#     #max_lam_4foot is the maximum wavelength required to be considered
+#     test = optmod._get_beam_trace(xpix,ypix,det,width=1)
+#     min_wv_ind = int((min_lam_4foot-.9)/0.001)#trace has a minimum wavelength of 0.9 microns and spacing of 0.001
+#     if min_wv_ind < 0:
+#         min_wv_ind = 0
+#     max_wv_ind = int((max_lam_4foot-.9)/0.001)+1
+#     lt = len(test['trace_pix_x'][0])
+#     if max_wv_ind > lt:
+#         max_wv_ind = lt
+#     tracex = test['trace_pix_x'][0][min_wv_ind:max_wv_ind]
+#     tracey = test['trace_pix_y'][0][min_wv_ind:max_wv_ind]
+#     if np.min(tracex)>=min_pix and np.max(tracex) < max_pix and np.min(tracey)>=min_pix and np.max(tracey) < max_pix:
+#         return 1
+#     else:
+#         return 0
+
+
+# def get_pixl_siaf(ra,dec,att_in,detnum):
+#     t0 = time()
+#     rap = f'WFI{detnum :02}_FULL'
+#     wfi = rsiaf[rap]
+#     wfi.set_attitude_matrix(att_in)
+#     cen_ra,cen_dec = wfi.idl_to_sky(0, 0)
+#     if cen_ra > 180:
+#         cen_ra -= 360
+#     t1 = time()
+#     #print(str(t1-t0)+ 'setup')
+#     #ddec = abs(dec-cen_dec)
+#     #dra = abs(ra-cen_ra)
+#     ddec = dec-cen_dec
+#     dra = ra-cen_ra
+#     sel = ddec > -0.1#ddec < 0.1
+#     sel &= ddec < 0.1
+#     dfac = np.cos(np.min(dec)*np.pi/180)
+#     sel &= dra < 0.1/dfac
+#     sel &= dra > -0.1/dfac
+#     t2 = time()
+#     #print(str(t2-t1)+' masked array')
+#     #pixels = np.copy(in_array)
+#     #pixels[0][sel] = -999
+#     t3 = time()
+#     #print(str(t3-t2)+' initialize array')
+
+
+#     pixels_sel = wfi.sky_to_sci(ra[sel],dec[sel])
+#     #pixels[0][sel] = pixels_sel[0]
+#     #pixels[1][sel] = pixels_sel[1]
+#     #pixels[2] = sel
+#     t4 = time()
+#     #print(str(t4-t3)+' final result')
+#     return pixels_sel,sel#pixels
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--wficen", help="if y, positions are detector center", default='y')
+parser.add_argument(
+    "--optmodver", help="version of optical model to use", default='v08')
+
+parser.add_argument(
+    "--wavmin", help="set minimum wavelength, if not None", default=None)
+parser.add_argument(
+    "--wavmax", help="set maximum wavelength, if not None", default=None)
+parser.add_argument(
+    "--chunksize", help="objects to process per chunk", default=10000000, type=int)
+parser.add_argument("--racol", help="column name for RA", default='RA')
+parser.add_argument("--deccol", help="column name for RA", default='DEC')
+parser.add_argument(
+    "--IDcol", help="column name for unique ID", default='TARGETID')
+parser.add_argument("--tiles", help="which set of tiles?", default='sd')
+parser.add_argument(
+    "--nran", help="number of randoms to use", default=1, type=int)
+# parser.add_argument("--output", help="full path to output file",default=os.environ['SCRATCH']+'/test4deg2.fits')
+parser.add_argument(
+    "--outroot", help="root directory for output", default=os.environ['SCRATCH'])
+parser.add_argument("--ramin", help="ra center", default=49, type=float)
+parser.add_argument("--ramax", help="ra center", default=51, type=float)
+parser.add_argument("--decmin", help="dec center", default=-11, type=float)
+parser.add_argument("--decmax", help="dec center", default=-9, type=float)
+parser.add_argument(
+    "--fullsurvey", help="If set, override any ra,dec bounds and simulate the whole survey", action='store_true')
+parser.add_argument(
+    "--padiff", help="diff in PA for the repeated values", default=0, type=float)
+parser.add_argument(
+    "--radiff", help="diff in RA for the repeated values", default=0, type=float)
+parser.add_argument(
+    "--decdiff", help="diff in DEC for the repeated values", default=0, type=float)
+parser.add_argument(
+    "--decpa", help="add diff in DEC for the flipped roll angles", default=0, type=float)
+
+args = parser.parse_args()
+
+if args.fullsurvey:
+    logger.info(
+        'fullsurvey flag is set, will ignore any ra,dec bounds and simulate the whole survey')
+    # no Roman footprint seems to go out of these bounds
+    decm = -60
+    decx = 10
+    ram = -10
+    rax = 180
+
+else:
+    decm = args.decmin
+    decx = args.decmax
+    ram = args.ramin
+    rax = args.ramax
+
+data = []
+
+ran4degfn = args.outroot+'/DESIran' + \
+    str(args.nran)+str(args.ramin)+str(args.ramax) + \
+    str(args.decmin)+str(args.decmax)+'.fits'
+
+if os.path.isfile(ran4degfn):
+    logger.info('reading randoms from '+ran4degfn)
+    data = Table.read(ran4degfn)
+else:
+    for i in range(0, args.nran):
+        # input_fn = '/dvs_ro/cfs/cdirs/desi/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-allsky-1-'+str(i)+'.fits'
+        input_fn = '/dvs_ro/cfs/cdirs/desi/public/ets/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-allsky-1-' + \
+            str(i)+'.fits'
+        logger.info('reading random file '+input_fn)
+        datai = Table.read(input_fn)
+        if args.IDcol not in list(datai.dtype.names):
+            datai[args.IDcol] = (i*1e10+np.arange(len(datai))).astype(int)
+        datai.keep_columns([args.racol, args.deccol, args.IDcol])
+
+        selra = datai[args.racol] > 180
+        datai[args.racol][selra] -= 360
+
+        sel = datai[args.racol] > ram
+        sel &= datai[args.racol] < rax
+        sel &= datai[args.deccol] > decm
+        sel &= datai[args.deccol] < decx
+
+        # inputsize = len(data)
+
+        datai = datai[sel]
+        data.append(datai)
+        logger.info('processed random file '+input_fn)
+
+    data = Table(np.concatenate(data))
+    logger.info('writing randoms to '+ran4degfn)
+    data.write(ran4degfn)
+logger.info('number of randoms used is '+str(len(data)))
+# logger.info('apply ra,dec bounds, data has been cut from '+str(inputsize)+' to '+str(len(data)))
+
+minwav = 1
+maxwav = 1.9
+wavstr = ''
+wfistr = ''
+if args.wficen != 'y':
+    wfistr = 'notwficen'
+
+if args.fullsurvey:
+    outdir = args.outroot+'/'+args.tiles + \
+        '/fullsurvey'+wfistr+'/'
+else:
+    outdir = args.outroot+'/'+args.tiles + \
+        '/ramin'+str(ram)+'decmin'+str(decm)+wfistr+'/'
+logger.info('results will be written to '+outdir)
+if not os.path.exists(outdir):
+    os.makedirs(outdir)
+
+fstr = 'DESIran'+str(args.nran)+'_lam'+str(minwav)+str(maxwav)+'_dpa_'+str(args.padiff) + \
+    '_dra'+str(args.radiff)+'_ddec'+str(args.decdiff)+'_ddecpa'+str(args.decpa)
+outf = outdir+'nobs'+fstr+'grid_'+args.optmodver+'.ecsv'
+logger.info('will save results to '+outf)
+
+
+if args.tiles == 'sd':
+    tiles = np.loadtxt(
+        os.environ['github_dir']+'observing-program/data/hlwas_tiling_241206.txt').transpose()
+    gtiles = tiles[4] == 9
+
+    racol = 2
+    deccol = 1
+    pacol = 3
+    pad = 0.2
+    if args.wficen != 'y':
+        pad = 0.5
+    print(len(tiles[0][gtiles]))
+    tls = Table()
+    tls['RA'] = tiles[racol][gtiles]
+    tls['DEC'] = tiles[deccol][gtiles]
+    tls['PA'] = tiles[pacol][gtiles]
+    # tls = tiles[0][gtiles]
+
+if args.tiles == 'socv0':
+    tiles = Table.read(
+        os.environ['github_dir']+'observing-program/data/tillingfromJavi_994_fixed_workaround.sim.ecsv')
+    gtiles = tiles['BANDPASS'] == 'GRISM'
+
+    racol = 'RA'
+    deccol = 'DEC'
+    pacol = 'PA'
+    pad = 0.2
+    if args.wficen != 'y':
+        pad = 0.5
+    tls = tiles[gtiles]
+
+    tls.sort('RA')
+    for i in range(0, len(tls)):
+        if (tls[i]['PA'] == 60):  # this is for the dec offset between the flipped PA
+            tls[i]['DEC'] += args.decpa
+
+    for i in range(0, len(tls), 2):
+        # and tls[i]['DEC'] == tls[i+1]['DEC']:
+        if tls[i]['RA'] == tls[i+1]['RA'] and tls[i]['PA'] == tls[i+1]['PA']:
+            tls[i+1]["PA"] += args.padiff
+            tls[i+1]["RA"] += args.radiff
+            tls[i+1]["DEC"] += args.decdiff
+    # logger.info('unique position angles are '+str(np.unique(tls['PA'])))
+    # ndec = len(np.unique(tls['DEC']))
+    # logger.info('unique/total DECs '+str(ndec)+' '+str(len(tls)))
+    # tu = unique(tls,keys=['RA','DEC'])
+    # logger.info('unique/total RA,DECs '+str(len(tu))+' '+str(len(tls)))
+selreg = tls['RA'] > args.ramin-2*pad/np.cos(args.decmin*np.pi/180)
+selreg &= tls['RA'] < args.ramax+2*pad/np.cos(args.decmin*np.pi/180)
+selreg &= tls['DEC'] > args.decmin-pad
+selreg &= tls['DEC'] < args.decmax+pad
+# print(len(tls[selreg]))
+tls = tls[selreg]
+# nobs = np.zeros(len(ral_tot))
+
+
+dets = np.arange(1, 19)
+nr = 0
+ra_all = []
+dec_all = []
+cnts_all = []
+indx_all = []
+
+tottl = len(tls)
+
+Nchunk = len(data)//args.chunksize + 1
+Nchunk = int(Nchunk)
+logger.info('will go through '+str(Nchunk)+' chunks')
+for chunk in range(0, Nchunk):
+    rand_indx = []
+    min_indx = int(chunk*args.chunksize)
+    max_indx = int((chunk+1)*args.chunksize)
+    if max_indx > len(data):
+        max_indx = len(data)
+    # data_chunk = data[min_indx:max_indx]
+    t0 = time()
+
+    ral_tot = data[min_indx:max_indx][args.racol]
+    decl_tot = data[min_indx:max_indx][args.deccol]
+    ran_indices = data[min_indx:max_indx][args.IDcol]
+    logger.info('cut data to chunk '+str(chunk))
+
+    def get_idx_tl(tl):
+        ra0 = tls['RA'][tl]
+        if ra0 > 180:
+            ra0 -= 360
+        dec0 = tls['DEC'][tl]
+        pa = tls['PA'][tl]
+        if args.optmodver == 'v06':
+            if args.wficen == 'y':
+                att = attitude(fp.wfi_cen.V2Ref,
+                               fp.wfi_cen.V3Ref, ra0, dec0, pa)
+            else:
+                att = attitude(0, 0, ra0, dec0, pa)
+        idx = []
+        ddec = decl_tot-dec0
+        dra = ral_tot-ra0
+        sel1deg = ddec > -1  # ddec < 0.1
+        sel1deg &= ddec < 1
+        dfac = np.cos(dec0*np.pi/180)
+        sel1deg &= dra < 1/dfac
+        sel1deg &= dra > -1/dfac
+        ral_tl = ral_tot[sel1deg]
+        decl_tl = decl_tot[sel1deg]
+        ran_indices_tl = ran_indices[sel1deg]
+
+        if len(ran_indices_tl) > 0:
+            if args.optmodver == 'v08':
+                xfpa, yfpa = optmod08.coords.calculate_fpa_pos(
+                    np.array(ral_tl), np.array(decl_tl), ra0, dec0, pa)
+                for det in dets:
+                    xpixl, ypixl = optmod08.coords.convert_fpa_to_sca(
+                        xfpa, yfpa, sca=det)
+                    selp = xpixl > -1000
+                    selp &= xpixl < 5088
+                    selp &= ypixl > -1000
+                    selp &= ypixl < 5088
+                    for i in range(0, len(xpixl[selp])):
+                        xfpai = xfpa[selp][i]
+                        yfpai = yfpa[selp][i]
+                        test = 0
+
+                        test = test_det_v08.test_foot(
+                            xfpai, yfpai, det=det, min_lam_4foot=minwav, max_lam_4foot=maxwav)
+                        if test == 1:
+                            idx_det = ran_indices_tl[selp][i]
+                            idx.append(idx_det)
+            if args.optmodver == 'v06':
+                for det in dets:
+                    # pixels = get_pixl(coords,dfoot,det,PA-pa_off)
+                    # pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
+                    pixel_sel, sel = fp.get_pixl_siaf(
+                        ral_tl, decl_tl, att, det)
+                    selp = sel.astype(bool)  # pixels[2].astype(bool)
+                    # print(np.sum(selp),len(selp))
+                    # for i in range(0,len(pixels[0][selp])):
+                    for i in range(0, len(pixel_sel[0])):
+                        # xpix = pixels[0][selp][i]
+                        # ypix = pixels[1][selp][i]
+                        xpix = pixel_sel[0][i]
+                        ypix = pixel_sel[1][i]
+
+                        test = 0
+                        if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
+                            test = test_det_v06.test_foot(
+                                xpix, ypix, det=det, min_lam_4foot=minwav, max_lam_4foot=maxwav)
+                            if test == 1:
+                                idx_det = ran_indices_tl[selp][i]
+                                idx.append(idx_det)
+
+                # logger.info('completed detector '+str(det)+' on obs '+str(tl))
+        # logger.info('completed '+str(tl)+' out of '+str(tottl))
+        return idx
+
+    par = 'y'
+    if par == 'n':
+        for tl in range(0, len(tls)):
+            idx = get_idx_tl(tl)
+            rand_indx.append(idx)
+            print(str(tl)+' completed')
+
+    if par == 'y':
+        from concurrent.futures import ProcessPoolExecutor
+        tl_idx = list(np.arange(len(tls)).astype(int))
+        with ProcessPoolExecutor() as executor:
+            for idx in executor.map(get_idx_tl, tl_idx):
+                rand_indx.append(idx)
+
+    logger.info('completed chunk '+str(chunk))
+    # logger.info('length of list of ids '+str(len(rand_indx)))
+    rand_indx = np.concatenate(rand_indx)
+    logger.info('length of concatenated array of ids '+str(len(rand_indx)))
+    rans, cnts = np.unique(rand_indx, return_counts=True)
+    selobs = np.isin(ran_indices, rans)
+    if np.array_equal(ran_indices[selobs], rans):
+        logger.info('input/final ids are matched in order')
+    else:
+        sys.exit('ids are not matched')
+
+    racut = ral_tot[selobs]
+    deccut = decl_tot[selobs]
+    ra_all.append(racut)
+    dec_all.append(deccut)
+    cnts_all.append(cnts)
+    indx_all.append(rans)
+    tf = time()
+    logger.info('finished chunk '+str(chunk)+' in ' +
+                str(tf-t0)+' out of '+str(Nchunk))
+
+
+ra_all = np.concatenate(ra_all)
+dec_all = np.concatenate(dec_all)
+cnts_all = np.concatenate(cnts_all)
+indx_all = np.concatenate(indx_all)
+
+logger.info('concatenated data '+str(len(ra_all)) +
+            ' data points with at least one observation')
+
+tout = Table()
+tout['RA'] = ra_all
+tout['DEC'] = dec_all
+tout['ID'] = indx_all
+tout['NOBS'] = np.array(cnts_all, dtype=int)
+logger.info('about to write output to '+outf)
+tout.write(outf, overwrite=True)
+
+logger.info('finished successfully!')
