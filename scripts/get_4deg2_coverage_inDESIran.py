@@ -2,7 +2,7 @@
 Given some input file (assumed to be fits) and tiling, determine the number of times each
 ra,dec in the input will be observed by the grism with the assumed wavelength coverage
 Example run, adding info to DESI all sky randoms:
-export $github_dir=/global/common/software/m4943/grizli0/
+export github_dir=/global/common/software/m4943/grizli0/
 export PYTHONPATH=$PYTHONPATH:$github_dir/observing-program/py/:$github_dir/optical_model_tools/py/
 srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_4deg2_coverage_inDESIran.py --tiles socv0 --nran 1 --outroot /global/cfs/cdirs/m4943/footprint/ --ramin 49 --ramax 51 --decmin -11 --decmax -9
 '''
@@ -216,7 +216,7 @@ wfistr = ''
 if args.wficen != 'y':
     wfistr = 'notwficen'
 
-outdir = args.outroot+'4deg2_'+args.tiles + \
+outdir = args.outroot+'/4deg2_'+args.tiles + \
     '/ramin'+str(ram)+'decmin'+str(decm)+wfistr+'/'
 logger.info('results will be written to '+outdir)
 if not os.path.exists(outdir):
