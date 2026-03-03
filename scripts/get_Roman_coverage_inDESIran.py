@@ -188,8 +188,8 @@ else:
 data = []
 
 ran4degfn = args.outroot+'/DESIran' + \
-    str(args.nran)+str(args.ramin)+str(args.ramax) + \
-    str(args.decmin)+str(args.decmax)+'.fits'
+    str(args.nran)+str(ram)+str(rax) + \
+    str(decm)+str(decx)+'.fits'
 
 if os.path.isfile(ran4degfn):
     logger.info('reading randoms from '+ran4degfn)
