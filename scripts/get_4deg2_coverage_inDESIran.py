@@ -318,7 +318,7 @@ for chunk in range(0, Nchunk):
         dec0 = tls['DEC'][tl]
         pa = tls['PA'][tl]
         if args.wficen == 'y':
-            att = attitude(wfi_cen.V2Ref, wfi_cen.V3Ref, ra0, dec0, pa)
+            att = attitude(fp.wfi_cen.V2Ref, fp.wfi_cen.V3Ref, ra0, dec0, pa)
         else:
             att = attitude(0, 0, ra0, dec0, pa)
         idx = []
