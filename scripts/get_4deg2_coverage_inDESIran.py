@@ -4,27 +4,29 @@ ra,dec in the input will be observed by the grism with the assumed wavelength co
 Example run, adding info to DESI all sky randoms:
 srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_4deg2_coverage_inDESIran.py --tiles socv0 --nran 1 --outroot /global/cfs/cdirs/m4943/footprint/ --ramin 49 --ramax 51 --decmin -11 --decmax -9
 '''
-
-import footprintutils as fp
-from optical_model_tools.v0_6 import test_det as test_det_v06
-from optical_model_tools.v0_6 import optical_model as opmod_v06
-from optical_model_tools.v0_8 import optical_model as opmod_v08
-from pysiaf.utils.rotations import attitude
-import os
-import glob
-import sys
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-from astropy.io import fits
-from astropy.table import Table, unique
-from astropy.wcs import WCS
-from astropy import units as u
-from astropy.coordinates import SkyCoord
-import importlib
-import argparse
-
 import logging
+import argparse
+import importlib
+from astropy.coordinates import SkyCoord
+from astropy import units as u
+from astropy.wcs import WCS
+from astropy.table import Table, unique
+from astropy.io import fits
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import glob
+from pysiaf.utils.rotations import attitude
+from optical_model_tools.v0_8 import optical_model as opmod_v08
+from optical_model_tools.v0_6 import optical_model as opmod_v06
+from optical_model_tools.v0_6 import test_det as test_det_v06
+import footprintutils as fp
+import os
+import sys
+os.environ['github_dir'] = '/global/common/software/m4943/grizli0/'
+sys.path.append(os.environ['github_dir']+'/observing-program/py/')
+sys.path.append(os.environ['github_dir']+'/optical_model_tools/py/')
+
 
 # create logger
 logname = 'Roman_coverage'
@@ -50,9 +52,6 @@ logger.addHandler(ch)
 # sys.path.append('/global/common/software/m4943/grizli0/grism_sim/py/')
 # os.environ["WEBBPSF_PATH"]="/global/cfs/cdirs/m4943/grismsim/webbpsf-data"
 
-os.environ['github_dir'] = '/global/common/software/m4943/grizli0/'
-sys.path.append(os.environ['github_dir']+'/observing-program/py/')
-sys.path.append(os.environ['github_dir']+'/optical_model_tools/py/')
 
 # similarly, should change to make this an environment variable
 code_data_dir = '/global/common/software/m4943/grizli0/observing-program/data/'
