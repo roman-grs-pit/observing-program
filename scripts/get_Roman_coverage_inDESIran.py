@@ -4,7 +4,9 @@ ra,dec in the input will be observed by the grism with the assumed wavelength co
 Example run, adding info to DESI all sky randoms:
 export github_dir=/global/common/software/m4943/grizli0/
 export PYTHONPATH=$PYTHONPATH:$github_dir/observing-program/py/:$github_dir/optical_model_tools/py/
-srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_4deg2_coverage_inDESIran.py --tiles socv0 --nran 1 --outroot /global/cfs/cdirs/m4943/footprint/ --ramin 49 --ramax 51 --decmin -11 --decmax -9
+srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_Roman_coverage_inDESIran.py --tiles socv0 --nran 1 --outroot /global/cfs/cdirs/m4943/footprint/ --ramin 49 --ramax 51 --decmin -11 --decmax -9
+to run the full survey 
+srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_Roman_coverage_inDESIran.py --fullsurvey
 '''
 from optical_model_tools.v0_8 import test_det as test_det_v08
 from optical_model_tools.v0_6 import test_det as test_det_v06
@@ -27,9 +29,6 @@ import footprintutils as fp
 import os
 import sys
 from time import time
-# os.environ['github_dir'] = '/global/common/software/m4943/grizli0/'
-# sys.path.append(os.environ['github_dir']+'/observing-program/py/')
-# sys.path.append(os.environ['github_dir']+'/optical_model_tools/py/')
 
 
 # create logger
@@ -52,83 +51,11 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-# on NERSC; should change this so that it is already sourced by environment script
-# sys.path.append('/global/common/software/m4943/grizli0/grism_sim/py/')
-# os.environ["WEBBPSF_PATH"]="/global/cfs/cdirs/m4943/grismsim/webbpsf-data"
-
-
-# similarly, should change to make this an environment variable
+#  should change to make this an environment variable
 code_data_dir = '/global/common/software/m4943/grizli0/observing-program/data/'
-
-
-# import pysiaf
-# rsiaf = pysiaf.Siaf('Roman')
-# wfi_cen = rsiaf['WFI_CEN']
 
 optmod06 = opmod_v06.RomanOpticalModel()
 optmod08 = opmod_v08.RomanOpticalModel()
-
-# import optical_model
-# optmod = optical_model.RomanOpticalModel()
-
-
-# should move this to code library
-# def test_foot(xpix,ypix,min_pix=0,max_pix=4088,det=1,min_lam_4foot=1.6,max_lam_4foot=1.93):
-#     #xpix,ypix is the pixel center for the object in the direct image
-#     #min_pix,max_pix represent the detector bounds in pixels
-#     #det is the SCA detector number
-#     #min_lam_4foot is the minimum wavelength required to be considered
-#     #max_lam_4foot is the maximum wavelength required to be considered
-#     test = optmod._get_beam_trace(xpix,ypix,det,width=1)
-#     min_wv_ind = int((min_lam_4foot-.9)/0.001)#trace has a minimum wavelength of 0.9 microns and spacing of 0.001
-#     if min_wv_ind < 0:
-#         min_wv_ind = 0
-#     max_wv_ind = int((max_lam_4foot-.9)/0.001)+1
-#     lt = len(test['trace_pix_x'][0])
-#     if max_wv_ind > lt:
-#         max_wv_ind = lt
-#     tracex = test['trace_pix_x'][0][min_wv_ind:max_wv_ind]
-#     tracey = test['trace_pix_y'][0][min_wv_ind:max_wv_ind]
-#     if np.min(tracex)>=min_pix and np.max(tracex) < max_pix and np.min(tracey)>=min_pix and np.max(tracey) < max_pix:
-#         return 1
-#     else:
-#         return 0
-
-
-# def get_pixl_siaf(ra,dec,att_in,detnum):
-#     t0 = time()
-#     rap = f'WFI{detnum :02}_FULL'
-#     wfi = rsiaf[rap]
-#     wfi.set_attitude_matrix(att_in)
-#     cen_ra,cen_dec = wfi.idl_to_sky(0, 0)
-#     if cen_ra > 180:
-#         cen_ra -= 360
-#     t1 = time()
-#     #print(str(t1-t0)+ 'setup')
-#     #ddec = abs(dec-cen_dec)
-#     #dra = abs(ra-cen_ra)
-#     ddec = dec-cen_dec
-#     dra = ra-cen_ra
-#     sel = ddec > -0.1#ddec < 0.1
-#     sel &= ddec < 0.1
-#     dfac = np.cos(np.min(dec)*np.pi/180)
-#     sel &= dra < 0.1/dfac
-#     sel &= dra > -0.1/dfac
-#     t2 = time()
-#     #print(str(t2-t1)+' masked array')
-#     #pixels = np.copy(in_array)
-#     #pixels[0][sel] = -999
-#     t3 = time()
-#     #print(str(t3-t2)+' initialize array')
-
-
-#     pixels_sel = wfi.sky_to_sci(ra[sel],dec[sel])
-#     #pixels[0][sel] = pixels_sel[0]
-#     #pixels[1][sel] = pixels_sel[1]
-#     #pixels[2] = sel
-#     t4 = time()
-#     #print(str(t4-t3)+' final result')
-#     return pixels_sel,sel#pixels
 
 
 parser = argparse.ArgumentParser()
@@ -196,7 +123,6 @@ if os.path.isfile(ran4degfn):
     data = Table.read(ran4degfn)
 else:
     for i in range(0, args.nran):
-        # input_fn = '/dvs_ro/cfs/cdirs/desi/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-allsky-1-'+str(i)+'.fits'
         input_fn = '/dvs_ro/cfs/cdirs/desi/public/ets/target/catalogs/dr9/0.49.0/randoms/resolve/randoms-allsky-1-' + \
             str(i)+'.fits'
         logger.info('reading random file '+input_fn)
@@ -212,8 +138,6 @@ else:
         sel &= datai[args.racol] < rax
         sel &= datai[args.deccol] > decm
         sel &= datai[args.deccol] < decx
-
-        # inputsize = len(data)
 
         datai = datai[sel]
         data.append(datai)
@@ -295,10 +219,10 @@ if args.tiles == 'socv0':
     # logger.info('unique/total DECs '+str(ndec)+' '+str(len(tls)))
     # tu = unique(tls,keys=['RA','DEC'])
     # logger.info('unique/total RA,DECs '+str(len(tu))+' '+str(len(tls)))
-selreg = tls['RA'] > args.ramin-2*pad/np.cos(args.decmin*np.pi/180)
-selreg &= tls['RA'] < args.ramax+2*pad/np.cos(args.decmin*np.pi/180)
-selreg &= tls['DEC'] > args.decmin-pad
-selreg &= tls['DEC'] < args.decmax+pad
+selreg = tls['RA'] > ram-2*pad/np.cos(args.decmin*np.pi/180)
+selreg &= tls['RA'] < rax+2*pad/np.cos(args.decmin*np.pi/180)
+selreg &= tls['DEC'] > decm-pad
+selreg &= tls['DEC'] < decx+pad
 # print(len(tls[selreg]))
 tls = tls[selreg]
 # nobs = np.zeros(len(ral_tot))
@@ -322,7 +246,7 @@ for chunk in range(0, Nchunk):
     max_indx = int((chunk+1)*args.chunksize)
     if max_indx > len(data):
         max_indx = len(data)
-    # data_chunk = data[min_indx:max_indx]
+
     t0 = time()
 
     ral_tot = data[min_indx:max_indx][args.racol]
@@ -345,7 +269,7 @@ for chunk in range(0, Nchunk):
         idx = []
         ddec = decl_tot-dec0
         dra = ral_tot-ra0
-        sel1deg = ddec > -1  # ddec < 0.1
+        sel1deg = ddec > -1
         sel1deg &= ddec < 1
         dfac = np.cos(dec0*np.pi/180)
         sel1deg &= dra < 1/dfac
@@ -377,16 +301,10 @@ for chunk in range(0, Nchunk):
                             idx.append(idx_det)
             if args.optmodver == 'v06':
                 for det in dets:
-                    # pixels = get_pixl(coords,dfoot,det,PA-pa_off)
-                    # pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
                     pixel_sel, sel = fp.get_pixl_siaf(
                         ral_tl, decl_tl, att, det)
                     selp = sel.astype(bool)  # pixels[2].astype(bool)
-                    # print(np.sum(selp),len(selp))
-                    # for i in range(0,len(pixels[0][selp])):
                     for i in range(0, len(pixel_sel[0])):
-                        # xpix = pixels[0][selp][i]
-                        # ypix = pixels[1][selp][i]
                         xpix = pixel_sel[0][i]
                         ypix = pixel_sel[1][i]
 
@@ -398,8 +316,6 @@ for chunk in range(0, Nchunk):
                                 idx_det = ran_indices_tl[selp][i]
                                 idx.append(idx_det)
 
-                # logger.info('completed detector '+str(det)+' on obs '+str(tl))
-        # logger.info('completed '+str(tl)+' out of '+str(tottl))
         return idx
 
     par = 'y'
