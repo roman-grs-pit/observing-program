@@ -6,6 +6,7 @@ export github_dir=/global/common/software/m4943/grizli0/
 export PYTHONPATH=$PYTHONPATH:$github_dir/observing-program/py/:$github_dir/optical_model_tools/py/
 srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_4deg2_coverage_inDESIran.py --tiles socv0 --nran 1 --outroot /global/cfs/cdirs/m4943/footprint/ --ramin 49 --ramax 51 --decmin -11 --decmax -9
 '''
+from optical_model_tools.v0_8 import test_det as test_det_v08
 from optical_model_tools.v0_6 import test_det as test_det_v06
 from optical_model_tools.v0_6 import optical_model as opmod_v06
 from optical_model_tools.v0_8 import optical_model as opmod_v08
@@ -65,7 +66,7 @@ code_data_dir = '/global/common/software/m4943/grizli0/observing-program/data/'
 # wfi_cen = rsiaf['WFI_CEN']
 
 optmod06 = opmod_v06.RomanOpticalModel()
-# from optical_model_tools.v0_8 import test_det as test_det_v08
+optmod08 = opmod_v08.RomanOpticalModel()
 
 # import optical_model
 # optmod = optical_model.RomanOpticalModel()
@@ -133,6 +134,9 @@ optmod06 = opmod_v06.RomanOpticalModel()
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--wficen", help="if y, positions are detector center", default='y')
+parser.add_argument(
+    "--optmodver", help="version of optical model to use", default='v08')
+
 parser.add_argument(
     "--wavmin", help="set minimum wavelength, if not None", default=None)
 parser.add_argument(
@@ -225,7 +229,7 @@ if not os.path.exists(outdir):
 
 fstr = 'DESIran'+str(args.nran)+'_lam'+str(minwav)+str(maxwav)+'_dpa_'+str(args.padiff) + \
     '_dra'+str(args.radiff)+'_ddec'+str(args.decdiff)+'_ddecpa'+str(args.decpa)
-outf = outdir+'nobs'+fstr+'grid.ecsv'
+outf = outdir+'nobs'+fstr+'grid_'+args.optmodver+'.ecsv'
 logger.info('will save results to '+outf)
 
 
@@ -317,10 +321,12 @@ for chunk in range(0, Nchunk):
             ra0 -= 360
         dec0 = tls['DEC'][tl]
         pa = tls['PA'][tl]
-        if args.wficen == 'y':
-            att = attitude(fp.wfi_cen.V2Ref, fp.wfi_cen.V3Ref, ra0, dec0, pa)
-        else:
-            att = attitude(0, 0, ra0, dec0, pa)
+        if args.optmodver == 'v06':
+            if args.wficen == 'y':
+                att = attitude(fp.wfi_cen.V2Ref,
+                               fp.wfi_cen.V3Ref, ra0, dec0, pa)
+            else:
+                att = attitude(0, 0, ra0, dec0, pa)
         idx = []
         ddec = decl_tot-dec0
         dra = ral_tot-ra0
@@ -332,27 +338,51 @@ for chunk in range(0, Nchunk):
         ral_tl = ral_tot[sel1deg]
         decl_tl = decl_tot[sel1deg]
         ran_indices_tl = ran_indices[sel1deg]
-        if len(ran_indices_tl) > 0:
-            for det in dets:
-                # pixels = get_pixl(coords,dfoot,det,PA-pa_off)
-                # pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
-                pixel_sel, sel = fp.get_pixl_siaf(ral_tl, decl_tl, att, det)
-                selp = sel.astype(bool)  # pixels[2].astype(bool)
-                # print(np.sum(selp),len(selp))
-                # for i in range(0,len(pixels[0][selp])):
-                for i in range(0, len(pixel_sel[0])):
-                    # xpix = pixels[0][selp][i]
-                    # ypix = pixels[1][selp][i]
-                    xpix = pixel_sel[0][i]
-                    ypix = pixel_sel[1][i]
 
-                    test = 0
-                    if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
-                        test = test_det_v06.test_foot(
-                            xpix, ypix, det=det, min_lam_4foot=minwav, max_lam_4foot=maxwav)
+        if len(ran_indices_tl) > 0:
+            if args.optmodver == 'v08':
+                xfpa, yfpa = optmod08.coords.calculate_fpa_pos(
+                    np.array(ral_tl), np.array(decl_tl), ra0, dec0, pa)
+                for det in dets:
+                    xpixl, ypixl = optmod08.coords.convert_fpa_to_sca(
+                        xfpa, yfpa, sca=det)
+                    selp = xpixl > -1000
+                    selp &= xpixl < 5088
+                    selp &= ypixl > -1000
+                    selp &= ypixl < 5088
+                    for i in range(0, len(xpixl[selp])):
+                        xfpai = xfpa[selp][i]
+                        yfpai = yfpa[selp][i]
+                        test = 0
+
+                        test = test_det_v08.test_foot(
+                            xfpai, yfpai, det=det, min_lam_4foot=minwav, max_lam_4foot=maxwav)
                         if test == 1:
                             idx_det = ran_indices_tl[selp][i]
                             idx.append(idx_det)
+            if args.optmodver == 'v06':
+                for det in dets:
+                    # pixels = get_pixl(coords,dfoot,det,PA-pa_off)
+                    # pixels = get_pixl_siaf(np.array(ral_tot),np.array(decl_tot),att,det)
+                    pixel_sel, sel = fp.get_pixl_siaf(
+                        ral_tl, decl_tl, att, det)
+                    selp = sel.astype(bool)  # pixels[2].astype(bool)
+                    # print(np.sum(selp),len(selp))
+                    # for i in range(0,len(pixels[0][selp])):
+                    for i in range(0, len(pixel_sel[0])):
+                        # xpix = pixels[0][selp][i]
+                        # ypix = pixels[1][selp][i]
+                        xpix = pixel_sel[0][i]
+                        ypix = pixel_sel[1][i]
+
+                        test = 0
+                        if xpix > -1000 and xpix < 5088 and ypix > -1000 and ypix < 5088:
+                            test = test_det_v06.test_foot(
+                                xpix, ypix, det=det, min_lam_4foot=minwav, max_lam_4foot=maxwav)
+                            if test == 1:
+                                idx_det = ran_indices_tl[selp][i]
+                                idx.append(idx_det)
+
                 # logger.info('completed detector '+str(det)+' on obs '+str(tl))
         # logger.info('completed '+str(tl)+' out of '+str(tottl))
         return idx
