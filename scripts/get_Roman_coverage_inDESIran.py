@@ -12,6 +12,7 @@ from optical_model_tools.v0_8 import test_det as test_det_v08
 from optical_model_tools.v0_6 import test_det as test_det_v06
 from optical_model_tools.v0_6 import optical_model as opmod_v06
 from optical_model_tools.v0_8 import optical_model as opmod_v08
+from optical_model_tools import sky_coords
 import roman_gdps_optical_model.optical_model as gdps_optical_model
 import logging
 import argparse
@@ -65,6 +66,8 @@ parser.add_argument(
     "--wficen", help="if y, positions are detector center", default='y')
 parser.add_argument(
     "--optmodver", help="version of optical model to use", default='v08')
+parser.add_argument(
+    "--coords_ver", help="version of ra,dec -> fpa transformation to use", default='gdps',choices=['gdps','tan'])
 
 parser.add_argument(
     "--wavmin", help="set minimum wavelength, if not None", default=None)
@@ -299,8 +302,13 @@ for chunk in range(0, Nchunk):
                     optmod_func = optmod08
                 else:
                     optmod_func = optmod_gdps
-                xfpa, yfpa = optmod_func.coords.calculate_fpa_pos(
-                    np.array(ral_tl), np.array(decl_tl), ra0, dec0, pa)
+                if args.coords_ver == 'gdps':
+                    xfpa, yfpa = optmod_func.coords.calculate_fpa_pos(
+                        np.array(ral_tl), np.array(decl_tl), ra0, dec0, pa)
+                if args.coords_ver == 'tan':
+                    xfpa, yfpa = sky_coords.tangent_plane(
+                        np.array(ral_tl), np.array(decl_tl), ra0, dec0, pa)
+                
                 for det in dets:
                     xpixl, ypixl = optmod_func.coords.convert_fpa_to_sca(
                         xfpa, yfpa, sca=det)
