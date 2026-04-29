@@ -294,7 +294,7 @@ for chunk in range(0, Nchunk):
         ran_indices_tl = ran_indices[sel1deg]
 
         if len(ran_indices_tl) > 0:
-            if args.optmodver == 'v08' or optmodver == 'gdps':
+            if args.optmodver == 'v08' or args.optmodver == 'gdps':
                 if args.optmodver == 'v08':
                     optmod_func = optmod08
                 else:
