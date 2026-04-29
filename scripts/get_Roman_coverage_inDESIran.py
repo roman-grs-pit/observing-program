@@ -3,7 +3,7 @@ Given some input file (assumed to be fits) and tiling, determine the number of t
 ra,dec in the input will be observed by the grism with the assumed wavelength coverage
 Example run, adding info to DESI all sky randoms:
 export github_dir=/global/common/software/m4943/grizli0/
-export PYTHONPATH=$PYTHONPATH:$github_dir/observing-program/py/:$github_dir/optical_model_tools/py/
+export PYTHONPATH=$PYTHONPATH:$github_dir/observing-program/py/:$github_dir/optical_model_tools/py/:$github_dir/GDPS_optical_model/
 srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_Roman_coverage_inDESIran.py --tiles socv0 --nran 1 --outroot /global/cfs/cdirs/m4943/footprint/ --ramin 49 --ramax 51 --decmin -11 --decmax -9
 to run the full survey 
 srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_Roman_coverage_inDESIran.py --fullsurvey
@@ -12,6 +12,7 @@ from optical_model_tools.v0_8 import test_det as test_det_v08
 from optical_model_tools.v0_6 import test_det as test_det_v06
 from optical_model_tools.v0_6 import optical_model as opmod_v06
 from optical_model_tools.v0_8 import optical_model as opmod_v08
+import roman_gdps_optical_model.optical_model as gdps_optical_model
 import logging
 import argparse
 import importlib
@@ -56,6 +57,7 @@ code_data_dir = '/global/common/software/m4943/grizli0/observing-program/data/'
 
 optmod06 = opmod_v06.RomanOpticalModel()
 optmod08 = opmod_v08.RomanOpticalModel()
+optmod_gdps = gdps_optical_model..RomanOpticalModel(os.environ['github_dir']+'/GDPS_optical_model/roman_gdps_optical_model/config/Roman_grism_OpticalModel_v0.8.yaml')
 
 
 parser = argparse.ArgumentParser()
@@ -292,11 +294,15 @@ for chunk in range(0, Nchunk):
         ran_indices_tl = ran_indices[sel1deg]
 
         if len(ran_indices_tl) > 0:
-            if args.optmodver == 'v08':
-                xfpa, yfpa = optmod08.coords.calculate_fpa_pos(
+            if args.optmodver == 'v08' or optmodver == 'gdps':
+                if args.optmodver == 'v08':
+                    optmod_func = optmod08
+                else:
+                    optmod_func = optmod_gdps
+                xfpa, yfpa = optmod_func.coords.calculate_fpa_pos(
                     np.array(ral_tl), np.array(decl_tl), ra0, dec0, pa)
                 for det in dets:
-                    xpixl, ypixl = optmod08.coords.convert_fpa_to_sca(
+                    xpixl, ypixl = optmod_func.coords.convert_fpa_to_sca(
                         xfpa, yfpa, sca=det)
                     selp = xpixl > -1000
                     selp &= xpixl < 5088
