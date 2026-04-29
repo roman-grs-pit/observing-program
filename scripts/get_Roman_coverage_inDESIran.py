@@ -57,7 +57,7 @@ code_data_dir = '/global/common/software/m4943/grizli0/observing-program/data/'
 
 optmod06 = opmod_v06.RomanOpticalModel()
 optmod08 = opmod_v08.RomanOpticalModel()
-optmod_gdps = gdps_optical_model..RomanOpticalModel(os.environ['github_dir']+'/GDPS_optical_model/roman_gdps_optical_model/config/Roman_grism_OpticalModel_v0.8.yaml')
+optmod_gdps = gdps_optical_model.RomanOpticalModel(os.environ['github_dir']+'/GDPS_optical_model/roman_gdps_optical_model/config/Roman_grism_OpticalModel_v0.8.yaml')
 
 
 parser = argparse.ArgumentParser()
