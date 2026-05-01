@@ -4,9 +4,9 @@ ra,dec in the input will be observed by the grism with the assumed wavelength co
 Example run, adding info to DESI all sky randoms:
 export github_dir=/global/common/software/m4943/grizli0/
 export PYTHONPATH=$PYTHONPATH:$github_dir/observing-program/py/:$github_dir/optical_model_tools/py/:$github_dir/GDPS_optical_model/
-srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_Roman_coverage_inDESIran.py --tiles socv0 --nran 1 --outroot /global/cfs/cdirs/m4943/footprint/ --ramin 49 --ramax 51 --decmin -11 --decmax -9
+srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_intile_coverage_inDESIran.py --tiles socv0 --nran 1 --outroot /global/cfs/cdirs/m4943/footprint/ --ramin 49 --ramax 51 --decmin -11 --decmax -9
 to run the full survey 
-srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_Roman_coverage_inDESIran.py --fullsurvey
+srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_intile_coverage_inDESIran.py --fullsurvey
 '''
 from optical_model_tools.v0_8 import test_det as test_det_v08
 from optical_model_tools.v0_6 import test_det as test_det_v06
@@ -156,10 +156,10 @@ if args.wficen != 'y':
     wfistr = 'notwficen'
 
 if args.fullsurvey:
-    outdir = args.outroot+'/'+args.tiles + \
+    outdir = args.outroot+'/test' + \
         '/fullsurvey'+wfistr+'/'
 else:
-    outdir = args.outroot+'/'+args.tiles + \
+    outdir = args.outroot+'/test' + \
         '/ramin'+str(ram)+'decmin'+str(decm)+wfistr+'/'
 logger.info('results will be written to '+outdir)
 if not os.path.exists(outdir):
