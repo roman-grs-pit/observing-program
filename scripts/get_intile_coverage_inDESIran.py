@@ -186,8 +186,8 @@ tiles = Table.read(args.tilefile)
 gtiles = tiles['BANDPASS'] == 'GRISM'
 tls = tiles[gtiles]
 if 'TARGET_NAME' in tiles.dtype.names:
-    selxmm = tiles['TARGET_NAME'] == 'XMM-LSS'
-    selcos = tiles['TARGET_NAME'] == 'COSMOS'
+    selxmm = tls['TARGET_NAME'] == 'XMM-LSS'
+    selcos = tls['TARGET_NAME'] == 'COSMOS'
     if args.target == 'medium':
         sel = ~selxmm & ~selcos
         tls = tls[sel]
