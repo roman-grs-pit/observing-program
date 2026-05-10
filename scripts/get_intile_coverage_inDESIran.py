@@ -210,10 +210,12 @@ if args.palist is not None:  # this will only work for medium targets
     tdecl = []
     tpal = []
     for i in range(0, len(tlsu)):
-        for pa in palist:
+        # for pa in palist:
+        for j in range(0, len(palist)):
+            pa = palist[j]
             tpal.append(pa)
-            tral.append(tlsu['RA'][i]+args.radiff)
-            deci = tlsu['DEC'][i]+args.decdiff
+            tral.append(tlsu['RA'][i]+j*args.radiff)
+            deci = tlsu['DEC'][i]+j*args.decdiff
             if pa-palist[0] > 100:
                 deci += args.decpa
             tdecl.append(deci)
