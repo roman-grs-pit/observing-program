@@ -122,7 +122,8 @@ else:
     decx = args.decmax
     ram = args.ramin
     rax = args.ramax
-
+    logger.info('will apply ra,dec bounds of ra > '+str(ram)+' and ra < '+str(rax) +
+                ' and dec > '+str(decm)+' and dec < '+str(decx))
 data = []
 
 ran4degfn = args.outroot+'/DESIran' + \
