@@ -225,12 +225,13 @@ if args.palist is not None:  # this will only work for medium targets
     tls['DEC'] = tdecl
     tls['PA'] = tpal
 
-selreg = tls['RA'] > ram-2*pad/np.cos(args.decmin*np.pi/180)
-selreg &= tls['RA'] < rax+2*pad/np.cos(args.decmin*np.pi/180)
-selreg &= tls['DEC'] > decm-pad
-selreg &= tls['DEC'] < decx+pad
-# print(len(tls[selreg]))
-tls = tls[selreg]
+if args.fullsurvey is False:
+    selreg = tls['RA'] > ram-2*pad/np.cos(args.decmin*np.pi/180)
+    selreg &= tls['RA'] < rax+2*pad/np.cos(args.decmin*np.pi/180)
+    selreg &= tls['DEC'] > decm-pad
+    selreg &= tls['DEC'] < decx+pad
+    # print(len(tls[selreg]))
+    tls = tls[selreg]
 logger.info(
     'number of grism tiles to simulate after ra/dec cuts is '+str(len(tls)))
 # nobs = np.zeros(len(ral_tot))
