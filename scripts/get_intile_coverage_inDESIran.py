@@ -4,9 +4,9 @@ ra,dec in the input will be observed by the grism with the assumed wavelength co
 Example run, adding info to DESI all sky randoms:
 export github_dir=/global/common/software/m4943/grizli0/
 export PYTHONPATH=$PYTHONPATH:$github_dir/observing-program/py/:$github_dir/optical_model_tools/py/:$github_dir/GDPS_optical_model/
-srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_intile_coverage_inDESIran.py --nran 1 --ramin 49 --ramax 51 --decmin -11 --decmax -9
+srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python $github_dir/observing-program/scripts/get_intile_coverage_inDESIran.py --nran 1 --ramin 49 --ramax 51 --decmin -11 --decmax -9
 to run the full survey 
-srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python scripts/get_intile_coverage_inDESIran.py --fullsurvey
+srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python $github_dir/observing-program/scripts/get_intile_coverage_inDESIran.py --fullsurvey
 '''
 from optical_model_tools.v0_8 import test_det as test_det_v08
 from optical_model_tools.v0_6 import test_det as test_det_v06
