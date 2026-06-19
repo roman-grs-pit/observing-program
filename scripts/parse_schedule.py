@@ -19,6 +19,10 @@ passgc = np.unique(t9['PASS'][selg & selc])
 seggx = np.unique(t9['SEGMENT'][selg & selx])
 seggc = np.unique(t9['SEGMENT'][selg & selc])
 
+sel_prog = sl['visit-id'] > 99401000000
+sel_prog &= sl['visit-id'] < 99500000000
+sl = sl[sel_prog]
+
 slseg = sl['visit-id'] % 1000
 
 pseg = sl['visit-id'] % 1000000
