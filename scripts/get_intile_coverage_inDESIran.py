@@ -2,6 +2,8 @@
 Given some input file (assumed to be fits) and input tiling file (in ecsv format), determine the number of times each
 ra,dec in the input will be observed by the grism with the assumed wavelength coverage
 Example run, adding info to DESI all sky randoms:
+module load conda
+conda activate /global/common/software/m4943/grizli1
 export github_dir=/global/common/software/m4943/grizli0/
 export PYTHONPATH=$PYTHONPATH:$github_dir/observing-program/py/:$github_dir/optical_model_tools/py/:$github_dir/GDPS_optical_model/
 srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python $github_dir/observing-program/scripts/get_intile_coverage_inDESIran.py --nran 1 --ramin 49 --ramax 51 --decmin -11 --decmax -9
