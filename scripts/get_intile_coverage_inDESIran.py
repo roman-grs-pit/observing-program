@@ -423,7 +423,8 @@ tout_re = Table()
 tout_re['ID'] = indx_re
 tout_re['SCA'] = det_bits_re
 tout_re['EXPID'] = expid_re
-outfre = outdir+'nobs'+fstr+'repeated_'+args.optmodver+args.outname+'.ecsv'
-logger.info('about to write output to '+outfre)
+outfre = outdir+fstr+'repeated_'+args.optmodver+args.outname+'.ecsv'
+logger.info('length of repeated table is '+str(len(tout_re)))
+logger.info('about to write output for repeated points to '+outfre)
 tout_re.write(outfre, overwrite=True)
 logger.info('finished successfully!')
