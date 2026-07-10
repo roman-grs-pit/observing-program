@@ -9,6 +9,8 @@ export PYTHONPATH=$PYTHONPATH:$github_dir/observing-program/py/:$github_dir/opti
 srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python $github_dir/observing-program/scripts/get_intile_coverage_inDESIran.py --nran 1 --ramin 49 --ramax 51 --decmin -11 --decmax -9
 to run the full survey 
 srun -N 1 -C cpu -t 02:00:00 --qos interactive --account m4943 python $github_dir/observing-program/scripts/get_intile_coverage_inDESIran.py --fullsurvey
+exposure ID and detector number should be added to the output for a file containing each observation of each point, but this is not implemented yet
+A bigger piece would be to get all of the pixel information along each trace. This would be a bit of work and hard to make fast.
 '''
 from optical_model_tools.v0_8 import test_det as test_det_v08
 from optical_model_tools.v0_6 import test_det as test_det_v06
@@ -186,6 +188,7 @@ logger.info('will save results to '+outf)
 
 
 tiles = Table.read(args.tilefile)
+tiles['EXPID'] = np.arange(len(tiles)).astype(int)
 gtiles = tiles['BANDPASS'] == 'GRISM'
 tls = tiles[gtiles]
 if 'TARGET_NAME' in tiles.dtype.names:
@@ -243,10 +246,12 @@ dets = np.arange(1, 19)
 nr = 0
 ra_all = []
 dec_all = []
-cnts_all = []
-indx_all = []
-det_bits_all = []
 
+cnts_all = []
+indx_all = []  # will contain unique IDs for each point, so will be shorter than the re other arrays
+indx_re = []  # will contain repeated IDs for each observation of each point, so will be longer than the all other arrays
+det_bits_re = []
+expid_re = []
 tottl = len(tls)
 
 Nchunk = len(data)//args.chunksize + 1
@@ -255,6 +260,7 @@ logger.info('will go through '+str(Nchunk)+' chunks')
 for chunk in range(0, Nchunk):
     rand_indx = []
     det_bits_chunk = []
+    expid_chunk = []
     min_indx = int(chunk*args.chunksize)
     max_indx = int((chunk+1)*args.chunksize)
     if max_indx > len(data):
@@ -273,6 +279,7 @@ for chunk in range(0, Nchunk):
             ra0 -= 360
         dec0 = tls['DEC'][tl]
         pa = tls['PA'][tl]
+        eid = tls['EXPID'][tl]
         if args.optmodver == 'v06':
             if args.wficen == 'y':
                 att = attitude(fp.wfi_cen.V2Ref,
@@ -323,7 +330,7 @@ for chunk in range(0, Nchunk):
                             idx_det = ran_indices_tl[selp][i]
                             idx.append(idx_det)
                             # append the detector number to the list of bits for this point
-                            det_bits.append(int(2**det))
+                            det_bits.append(int(det))
             if args.optmodver == 'v06':
                 for det in dets:
                     pixel_sel, sel = fp.get_pixl_siaf(
@@ -342,27 +349,30 @@ for chunk in range(0, Nchunk):
                                 idx.append(idx_det)
                                 # append the detector number to the list of bits for this point
                                 det_bits.append(int(det))
-        return idx, det_bits
+        return idx, det_bits, eid
 
     par = 'y'
     if par == 'n':
         for tl in range(0, len(tls)):
-            idx, det_bits = get_idx_tl(tl)
+            idx, det_bits, eid = get_idx_tl(tl)
             rand_indx.append(idx)
+            det_bits_chunk.append(det_bits)
+            expid_chunk.append(np.ones(len(idx), dtype=int) * eid)
             print(str(tl)+' completed')
 
     if par == 'y':
         from concurrent.futures import ProcessPoolExecutor
         tl_idx = list(np.arange(len(tls)).astype(int))
         with ProcessPoolExecutor() as executor:
-            for idx, det_bits in executor.map(get_idx_tl, tl_idx):
+            for idx, det_bits, eid in executor.map(get_idx_tl, tl_idx):
                 rand_indx.append(idx)
                 det_bits_chunk.append(det_bits)
-
+                expid_chunk.append(np.ones(len(idx), dtype=int) * eid)
     logger.info('completed chunk '+str(chunk))
     # logger.info('length of list of ids '+str(len(rand_indx)))
     rand_indx = np.concatenate(rand_indx)
     det_bits_chunk = np.concatenate(det_bits_chunk)
+    expid_chunk = np.concatenate(expid_chunk)
     logger.info('length of concatenated array of ids '+str(len(rand_indx)))
     rans, indices, cnts = np.unique(
         rand_indx, return_counts=True, return_inverse=True)
@@ -380,7 +390,9 @@ for chunk in range(0, Nchunk):
     dec_all.append(deccut)
     cnts_all.append(cnts)
     indx_all.append(rans)
-    # det_bits_all.append(det_bits_u)
+    indx_re.append(rand_indx)
+    det_bits_re.append(det_bits_chunk)
+    expid_re.append(expid_chunk)
 
     tf = time()
     logger.info('finished chunk '+str(chunk)+' in ' +
@@ -391,7 +403,9 @@ ra_all = np.concatenate(ra_all)
 dec_all = np.concatenate(dec_all)
 cnts_all = np.concatenate(cnts_all)
 indx_all = np.concatenate(indx_all)
-# det_bits_all = np.concatenate(det_bits_all)
+det_bits_re = np.concatenate(det_bits_re)
+expid_re = np.concatenate(expid_re)
+indx_re = np.concatenate(indx_re)
 logger.info('concatenated data '+str(len(ra_all)) +
             ' data points with at least one observation')
 
@@ -403,5 +417,13 @@ tout['NOBS'] = np.array(cnts_all, dtype=int)
 # tout['DET_BITS'] = np.array(det_bits_all, dtype=int)
 logger.info('about to write output to '+outf)
 tout.write(outf, overwrite=True)
+logger.info('wrote output for unique points to '+outf)
 
+tout_re = Table()
+tout_re['ID'] = indx_re
+tout_re['SCA'] = det_bits_re
+tout_re['EXPID'] = expid_re
+outfre = outdir+'nobs'+fstr+'repeated_'+args.optmodver+args.outname+'.ecsv'
+logger.info('about to write output to '+outfre)
+tout_re.write(outfre, overwrite=True)
 logger.info('finished successfully!')
